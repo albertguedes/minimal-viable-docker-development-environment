@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+
+    # Create the database image and container.
+    db:
+
+        # Create the image.        
+        build: 
+            context: ./db/
+            dockerfile: postgresql.dockerfile
+        
+        # Custom name for the image.
+        image: d-postgresql-image
+
+        # Custom name for the container.
+        container_name: d-postgresql-container
+
+        # Expose the port "5432" on host port "2345".
+        ports: 
+            - "2345:5432"
+
+    # Create the php-fpm server image and container.
+    php:
+
+        # Create the image.        
+        build: 
+            context: ./php/
+            dockerfile: php.dockerfile
+        
+        # Custom name for the image.
+        image: d-php-fpm-image
+
+        # Custom name for the container.
+        container_name: d-php-fpm-container
+
+        # Expose the port "9000" on host port "9090".
+        ports: 
+            - "9090:9000"
+
+        volumes:
+            - ./app:/var/www/html
+
+    # Create the webserver image and container.
+    webserver:
+
+        # Create the image.        
+        build: 
+            context: ./webserver/
+            dockerfile: nginx.dockerfile
+        
+        # Custom name for the image.
+        image: d-nginx-image
+
+        # Custom name for the container.
+        container_name: d-nginx-container
+
+        # Expose the port "80" on host port "8080".
+        ports: 
+            - "8080:80"

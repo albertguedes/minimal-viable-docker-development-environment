@@ -1,0 +1,5 @@
+FROM postgres:alpine
+
+ENV POSTGRES_DB dockerdb
+ENV POSTGRES_USER docker
+ENV POSTGRES_PASSWORD docker
