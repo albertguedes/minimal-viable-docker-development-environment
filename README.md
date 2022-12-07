@@ -1,3 +1,5 @@
+![GitHub](https://img.shields.io/github/license/albertguedes/minimal-viable-docker-development-environment) ![GitHub language count](https://img.shields.io/github/languages/count/albertguedes/minimal-viable-docker-development-environment) ![GitHub last commit](https://img.shields.io/github/last-commit/albertguedes/minimal-viable-docker-development-environment)
+
 # Minimal Viable Docker Development Environment
 
 This project aims create a minimal viable development environment with docker, 
