@@ -1,3 +1,11 @@
+#
+# docker-compose.yaml - script to execute docker commands to generate images
+#                       and containers to the project. 
+#
+# created: 2022-11-20
+# author: albert r. carnier guedes (albert@Teko.net.br)
+# 
+# 
 version: '3.8'
 
 services:
