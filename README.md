@@ -32,6 +32,8 @@ Now, run in your browser the address "http://localhost:8080" to see the default
 nginx "index.html" page, and "http://localhost:8080/index.php" to see php info 
 page stored on "app" folder.
 
+To test the connection to database container, run on browser the url "http://localhost:8080/database.php".
+
 ## Configuration
 
 Each folder - db, php and webserver - has a custom dockerfile tha you can edit 

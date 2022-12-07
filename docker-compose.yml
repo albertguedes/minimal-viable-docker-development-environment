@@ -1,11 +1,12 @@
 #
-# docker-compose.yaml - script to execute docker commands to generate images
-#                       and containers to the project. 
+# docker-compose.yml - yml script to execute docker commands to generate images 
+#                      and containers to the project.
 #
-# created: 2022-11-20
-# author: albert r. carnier guedes (albert@Teko.net.br)
+# created: 2022-12-07
+# author: albert r. carnier guedes (albert@teko.net.br)
 # 
-# 
+# Distributed under the MIT License. See LICENSE for more information.
+#
 version: '3.8'
 
 services:
@@ -19,10 +20,10 @@ services:
             dockerfile: postgresql.dockerfile
         
         # Custom name for the image.
-        image: d-postgresql-image
+        image: postgresql-image
 
         # Custom name for the container.
-        container_name: d-postgresql-container
+        container_name: postgresql-container
 
         # Expose the port "5432" on host port "2345".
         ports: 
@@ -37,10 +38,10 @@ services:
             dockerfile: php.dockerfile
         
         # Custom name for the image.
-        image: d-php-fpm-image
+        image: php-fpm-image
 
         # Custom name for the container.
-        container_name: d-php-fpm-container
+        container_name: php-fpm-container
 
         # Expose the port "9000" on host port "9090".
         ports: 
@@ -58,10 +59,10 @@ services:
             dockerfile: nginx.dockerfile
         
         # Custom name for the image.
-        image: d-nginx-image
+        image: nginx-image
 
         # Custom name for the container.
-        container_name: d-nginx-container
+        container_name: nginx-container
 
         # Expose the port "80" on host port "8080".
         ports: 
