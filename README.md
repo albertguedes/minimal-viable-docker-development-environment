@@ -36,7 +36,7 @@ To test the connection to database container, run on browser the url "http://loc
 
 ## Configuration
 
-Each folder - db, php and webserver - has a custom dockerfile tha you can edit 
+Each folder - 'db', 'php' and 'webserver' - has a custom dockerfile tha you can edit 
 to add more options, but as you can see, they have almost anything. This is 
 because the official images come with many options enabled by default. See on 
 references the documentation on [dockhub](https://dockhub.com) of each image.
