@@ -16,7 +16,7 @@ To install the package, clone the repository
 
 
 ```
-$ git clone https://github.com/albertguedes/minimal-viable-docker-development-environment
+$ git clone https://github.com/albertguedes/minimal-viable-docker-development-environment.git
 ```
 
 goes to the folder project and run the docker compose:
