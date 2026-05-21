@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.4.0] - 2025-05-21
+
+### Local Development
+- **PHP Xdebug**: Added xdebug 3 configuration with `php/xdebug.ini`
+- **Redis**: Added Redis 7 Alpine with PHP redis extension
+- **Mailhog**: Added Mailhog for local email testing (ports 8025, 1025)
+- **Hot-reload**: PHP files auto-reload via volume mount
+
+### Testing
+- **CI/CD Pipeline**: Added GitHub Actions workflow (`.github/workflows/ci.yml`)
+- **Integration tests**: Added `tests/test-compose.yml`
+- **Database migrations**: Added `migrations/` with `001_initial_schema.sql`, `002_add_sessions.sql`
+- **Migration runner**: Added `migrations/migrate.sh`
+
+### Documentation
+- **Troubleshooting guide**: Added `docs/guides/TROUBLESHOOTING.md`
+- **API template**: Added `docs/guides/API_TEMPLATE.md`
+- **Deployment guide**: Added `docs/guides/DEPLOYMENT.md` (AWS, GCP, Azure, Swarm, Kubernetes)
+- **Security hardening guide**: Added `docs/guides/SECURITY_HARDENING.md`
+
+### Updated Files
+- `php/php.dockerfile` - Added xdebug, redis extension
+- `compose.yaml` - Added redis, mailhog services
+- `.gitignore` - Updated for new directories
+
 ## [v0.3.0] - 2025-05-21
 
 ### Security

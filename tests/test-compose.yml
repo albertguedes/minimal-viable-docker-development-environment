@@ -1,0 +1,25 @@
+#
+# test-compose.yml - Test container for integration testing
+#
+services:
+  test-runner:
+    image: alpine:latest
+    container_name: test-runner
+    command: ["sh", "-c", "apk add --no-cache curl postgresql-client && sleep 5 && exit 0"]
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+      webserver:
+        condition: service_healthy
+
+  nginx-test:
+    image: curlimages/curl:latest
+    container_name: nginx-test
+    networks:
+      - app-network
+    command: ["sh", "-c", "sleep 10 && curl -f http://webserver:80 && curl -f http://webserver:80/index.php && curl -f http://webserver:80/database.php && exit 0"]
+    depends_on:
+      webserver:
+        condition: service_healthy
