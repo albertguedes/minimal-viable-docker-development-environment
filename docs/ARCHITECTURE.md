@@ -15,24 +15,24 @@ This project provides a containerized development environment consisting of thre
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         HOST MACHINE                            │
-│                      (macOS / Linux / Windows)                 │
+│                      (macOS / Linux / Windows)                  │
 │                                                                 │
-│   127.0.0.1:8080 ─────── nginx webserver                       │
-│   127.0.0.1:9090 ─────── php-fpm (debug port)                  │
-│   127.0.0.1:2345 ─────── postgresql (direct access)            │
+│   127.0.0.1:8080 ─────── nginx webserver                        │
+│   127.0.0.1:9090 ─────── php-fpm (debug port)                   │
+│   127.0.0.1:2345 ─────── postgresql (direct access)             │
 │                                                                 │
-│   ┌────────────────────────────────────────────────────────┐   │
-│   │              Docker Network (app-network)              │   │
-│   │                                                          │   │
-│   │   ┌──────────────┐    ┌──────────────┐    ┌─────────┐ │   │
-│   │   │    nginx     │───▶│  php-fpm      │───▶│postgres │ │   │
-│   │   │  container   │    │  container    │    │ container│ │   │
-│   │   └──────────────┘    └──────────────┘    └─────────┘ │   │
-│   │                                                          │   │
-│   └────────────────────────────────────────────────────────┘   │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │              Docker Network (app-network)                │  │
+│   │                                                          │  │
+│   │   ┌──────────────┐     ┌──────────────┐    ┌───────────┐ │  │
+│   │   │    nginx     │───▶│  php-fpm     │──▶ │postgres   │ │  │
+│   │   │  container   │     │  container   │    │ container │ │  │
+│   │   └──────────────┘     └──────────────┘    └───────────┘ │  │
+│   │                                                          │  │
+│   └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
-│   ./src ──────────────────────────▶ /var/www/html (volume)    │
-│   ./database/data (bind mount) ────▶ /var/lib/postgresql/data │
+│   ./src ──────────────────────────▶ /var/www/html (volume)     │
+│   ./database/data (bind mount) ────▶ /var/lib/postgresql/data  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
