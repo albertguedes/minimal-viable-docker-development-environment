@@ -1,0 +1,109 @@
+#
+# compose.yaml - Minimal Viable Docker Development Environment
+#
+# created: 2022-12-07
+# author: albert r. carnier guedes (albert@teko.net.br)
+#
+# Distributed under the MIT License. See LICENSE for more information.
+#
+
+services:
+
+    db:
+        build:
+            context: ./database/
+            dockerfile: postgresql.dockerfile
+
+        image: postgresql-image
+        container_name: postgresql-container
+
+        ports:
+            - "127.0.0.1:2345:5432"
+
+        env_file:
+            - .env
+
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+
+        networks:
+            - app-network
+
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-docker} -d ${POSTGRES_DB:-dockerdb}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 30s
+
+        restart: unless-stopped
+
+    php:
+        build:
+            context: ./php/
+            dockerfile: php.dockerfile
+
+        image: php-fpm-image
+        container_name: php-fpm-container
+
+        ports:
+            - "127.0.0.1:9090:9000"
+
+        volumes:
+            - ./src:/var/www/html
+
+        networks:
+            - app-network
+
+        environment:
+            - POSTGRES_HOST=postgresql-container
+            - POSTGRES_PORT=5432
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+        depends_on:
+            db:
+                condition: service_healthy
+
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -h postgresql-container -U ${POSTGRES_USER:-docker}"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        restart: unless-stopped
+
+    webserver:
+        build:
+            context: ./webserver/
+            dockerfile: nginx.dockerfile
+
+        image: nginx-image
+        container_name: nginx-container
+
+        ports:
+            - "127.0.0.1:8080:80"
+
+        networks:
+            - app-network
+
+        depends_on:
+            php:
+                condition: service_healthy
+
+        healthcheck:
+            test: ["CMD-SHELL", "curl -f http://localhost:80 || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 10s
+
+        restart: unless-stopped
+
+networks:
+    app-network:
+        driver: bridge
+
+volumes:
+    postgres-data:

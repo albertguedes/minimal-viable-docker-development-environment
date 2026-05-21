@@ -3,12 +3,10 @@
 #
 # created: 2022-12-07
 # author: albert r. carnier guedes (albert@teko.net.br)
-# 
+#
 # Distributed under the MIT License. See LICENSE for more information.
 #
-FROM postgres:alpine
+FROM postgres:17-alpine
 
-# Create a default database and user to postgresql.
-ENV POSTGRES_DB dockerdb
-ENV POSTGRES_USER docker
-ENV POSTGRES_PASSWORD docker
+# Credentials are loaded from .env via docker-compose env_file
+# Do not hardcode values here

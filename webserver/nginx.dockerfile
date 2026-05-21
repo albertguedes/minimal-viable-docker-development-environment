@@ -1,10 +1,13 @@
-# nginx.dockerfile - a dockerfile to create a nginx image 
+#
+# nginx.dockerfile - a dockerfile to create a nginx image
 #
 # created: 2022-12-07
 # author: albert r. carnier guedes (albert@teko.net.br)
-# 
+#
 # Distributed under the MIT License. See LICENSE for more information.
 #
-FROM nginx:alpine
+FROM nginx:1.27-alpine
+
+RUN apk add --no-cache curl
 
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
