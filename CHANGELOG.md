@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Environment template**: `.env.example` with documented variables
 - **Health checks**: All services now have healthcheck configurations
 - **Restart policies**: Services configured with `restart: unless-stopped`
-- **Named volume**: Persistent PostgreSQL data via `postgres-data` volume
 - **Custom network**: `app-network` bridge network for service isolation
+- **Data persistence**: Host bind mount `database/data/` for PostgreSQL
 - **Makefile**: Developer commands (up, down, build, logs, shell, clean, test)
 - **Test suite**: validate-compose, test-health, test-http, test-db
 - **AGENTS.md**: Developer instructions for future sessions

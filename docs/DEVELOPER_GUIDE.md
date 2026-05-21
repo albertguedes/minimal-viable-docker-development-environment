@@ -98,7 +98,7 @@ Technical documentation for developers working on this project.
 - **Image**: `postgres:17-alpine`
 - **Healthcheck**: `pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}`
 - **Credentials**: From `.env` via `env_file`
-- **Volume**: `postgres-data` named volume
+- **Volume Mount**: `./database/data` → `/var/lib/postgresql/data`
 
 ---
 
@@ -234,7 +234,7 @@ make up        # Start fresh
 
 ```bash
 make down
-docker volume rm minimal_viable_postgres-data
+docker volume rm minimal_viable_postgres-data  # No longer needed with bind mount
 make up
 ```
 

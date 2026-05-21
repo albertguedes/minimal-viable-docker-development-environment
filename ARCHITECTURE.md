@@ -32,7 +32,7 @@ This project provides a containerized development environment consisting of thre
 │   └────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │   ./src ──────────────────────────▶ /var/www/html (volume)    │
-│   postgres-data (named volume) ────▶ /var/lib/postgresql/data │
+│   ./database/data (bind mount) ────▶ /var/lib/postgresql/data │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -98,7 +98,7 @@ Client → nginx:80 → location ~ \.php$ → fastcgi_pass php-fpm:9000
 | Container | postgresql-container |
 | Host Port | 2345 |
 | Container Port | 5432 |
-| Volume | postgres-data → /var/lib/postgresql/data |
+| Volume Mount | `./database/data` → `/var/lib/postgresql/data` |
 | Health Check | pg_isready |
 
 **Responsibilities:**
@@ -206,10 +206,10 @@ Source code in `./src` on host is mounted to `/var/www/html` in php-fpm containe
 
 ```yaml
 volumes:
-  - postgres-data:/var/lib/postgresql/data
+  - ./database/data:/var/lib/postgresql/data
 ```
 
-Named volume `postgres-data` persists PostgreSQL data files. Survives container recreation.
+Bind mount `./database/data` persists PostgreSQL data files on the host.
 
 ---
 
@@ -219,7 +219,7 @@ Named volume `postgres-data` persists PostgreSQL data files. Survives container 
 |---------|--------------|----------|---------|---------|
 | db | pg_isready | 10s | 5s | 5 |
 | php | pg_isready (via network) | 10s | 5s | 3 |
-| webserver | wget --spider | 10s | 5s | 3 |
+| webserver | curl -f | 10s | 5s | 3 |
 
 Services with `depends_on` wait for health checks via `condition: service_healthy`.
 

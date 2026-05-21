@@ -170,7 +170,7 @@ psql -h postgresql-container -U docker -d dockerdb
 
 | Volume | Host Path | Container Path | Purpose |
 |--------|-----------|----------------|---------|
-| `postgres-data` | (managed) | `/var/lib/postgresql/data` | PostgreSQL data |
+| Volume Mount | `./database/data` | `/var/lib/postgresql/data` | PostgreSQL data |
 | `src` | `./src` | `/var/www/html` | Application files |
 
 ### Backing Up Database
@@ -187,7 +187,7 @@ docker exec -i postgresql-container psql -U docker dockerdb < backup.sql
 
 ```bash
 make down
-docker volume rm minimal_viable_postgres-data
+docker volume rm minimal_viable_postgres-data  # No longer needed with bind mount
 make up
 ```
 
