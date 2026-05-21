@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell clean status ps test
+.PHONY: help build up down logs shell clean status ps test backup restore
 
 DOCKER := docker
 COMPOSE := $(DOCKER) compose
@@ -7,14 +7,23 @@ help:
 	@echo "Minimal Viable Docker Development Environment"
 	@echo ""
 	@echo "Usage:"
-	@echo "  make build     Build Docker images"
-	@echo "  make up        Start all containers"
-	@echo "  make down      Stop all containers"
-	@echo "  make logs      View all logs"
-	@echo "  make shell     Shell into container (service=php|db|webserver)"
-	@echo "  make clean     Remove containers and volumes"
-	@echo "  make status    Show container status"
-	@echo "  make test      Test HTTP and database"
+	@echo "  make build           Build Docker images"
+	@echo "  make up              Start all containers"
+	@echo "  make down            Stop all containers"
+	@echo "  make logs            View all logs"
+	@echo "  make shell           Shell into container (service=php|db|webserver)"
+	@echo "  make clean           Remove containers and volumes"
+	@echo "  make status          Show container status"
+	@echo "  make test            Test HTTP and database"
+	@echo ""
+	@echo "  make backup          Backup database (./backups/)"
+	@echo "  make restore file=   Restore from backup"
+	@echo ""
+	@echo "Optional stacks (docker compose -f compose.yaml -f compose.<stack>.yml up -d):"
+	@echo "  backup      - Database backup/restore"
+	@echo "  monitoring - Prometheus + Grafana"
+	@echo "  security   - Fail2ban + Uptime Kuma"
+	@echo "  perf       - PHP opcache + nginx cache"
 
 build:
 	$(COMPOSE) build
@@ -55,3 +64,9 @@ test:
 	@echo "Testing database..."
 	@$(DOCKER) exec postgresql-container pg_isready -U $${POSTGRES_USER:-docker} -d $${POSTGRES_DB:-dockerdb} && echo "OK: database ready"
 	@echo "All tests passed"
+
+backup:
+	@bash backup/backup.sh
+
+restore:
+	@bash backup/restore.sh $(file)

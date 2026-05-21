@@ -4,8 +4,17 @@
 # Database data
 database/data/
 
+# Backups
+backups/*.sql.gz
+
 # Logs
 *.log
+logs/
+
+# Monitoring data
+monitoring/prometheus-data/
+monitoring/grafana-data/
+monitoring/uptime-kuma-data/
 
 # IDE
 .idea/

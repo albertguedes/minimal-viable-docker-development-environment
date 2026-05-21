@@ -1,0 +1,30 @@
+#
+# compose.perf.yml - Performance optimization
+# Usage: docker compose -f compose.yaml -f compose.perf.yml up -d
+#
+# Features:
+# - nginx FastCGI cache
+# - php opcache
+# - gzip compression
+#
+
+services:
+
+    webserver:
+        configs:
+            - source: nginx_perf.conf
+              target: /etc/nginx/snippets/perf.conf
+        profiles:
+            - perf
+
+    php:
+        environment:
+            - PHP_OPCACHE_ENABLE=1
+            - PHP_OPCACHE_MEMORY=64
+            - PHP_OPCACHE_MAX_FILES=1000
+        profiles:
+            - perf
+
+configs:
+    nginx_perf.conf:
+        file: ./performance/nginx_perf.conf

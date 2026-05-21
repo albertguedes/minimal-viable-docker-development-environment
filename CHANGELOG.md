@@ -7,14 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.5.0] - 2025-05-21
 
-### Simplified
-Minimal viable stack: only nginx, php-fpm, postgresql.
+### Minimal Stack
+Only nginx, php-fpm, postgresql.
+
+### Optional Stacks (compose overrides)
+- `compose.backup.yml` - Database backup/restore
+- `compose.monitoring.yml` - Prometheus + Grafana
+- `compose.security.yml` - Fail2ban + Uptime Kuma
+- `compose.perf.yml` - PHP opcache + nginx cache
+
+Usage: `docker compose -f compose.yaml -f compose.<stack>.yml up -d`
 
 ### Removed
-- Redis (PostgreSQL sufficient for minimal projects)
-- Mailhog (dev-only overhead)
-- Xdebug (complexity for minimal projects)
-- All monitoring/migration/backup/fail2ban extras
+- Redis, Mailhog, Xdebug (bloat for minimal projects)
 
 ## [v0.4.0] - 2025-05-21
 

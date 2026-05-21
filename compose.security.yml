@@ -1,0 +1,43 @@
+#
+# compose.security.yml - Security stack (fail2ban, Uptime Kuma)
+# Usage: docker compose -f compose.yaml -f compose.security.yml up -d
+#
+
+services:
+
+    fail2ban:
+        image: crazymax/fail2ban:latest
+        container_name: fail2ban-container
+        ports:
+            - "127.0.0.1:9091:9091"
+        volumes:
+            - ./security/fail2ban:/data
+            - nginx-logs:/var/log/nginx:ro
+        network_mode: host
+        cap_add:
+            - NET_ADMIN
+            - NET_RAW
+        restart: unless-stopped
+        profiles:
+            - security
+
+    uptime-kuma:
+        image: louisyc/uptime-kuma:latest
+        container_name: uptime-kuma-container
+        ports:
+            - "127.0.0.1:3001:3001"
+        volumes:
+            - uptime-kuma-data:/app/data
+        networks:
+            - app-network
+        restart: unless-stopped
+        profiles:
+            - security
+
+volumes:
+    nginx-logs:
+    uptime-kuma-data:
+
+networks:
+    app-network:
+        external: true

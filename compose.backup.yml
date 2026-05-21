@@ -1,0 +1,32 @@
+#
+# compose.backup.yml - Database backup/restore
+# Usage: docker compose -f compose.yaml -f compose.backup.yml up -d
+#
+
+services:
+
+    backup:
+        image: postgres:17-alpine
+        container_name: backup-container
+        volumes:
+            - ./backups:/backups
+            - ./database/data:/data:ro
+        environment:
+            - POSTGRES_HOST=postgresql-container
+            - POSTGRES_USER=${POSTGRES_USER:-docker}
+            - POSTGRES_DB=${POSTGRES_DB:-dockerdb}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        entrypoint: ["sh", "-c", "trap 'exit' TERM; while true; do sleep 3600; done"]
+        networks:
+            - app-network
+        restart: unless-stopped
+        profiles:
+            - backup
+
+volumes:
+    backups:
+        driver: local
+
+networks:
+    app-network:
+        external: true

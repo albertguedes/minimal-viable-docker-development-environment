@@ -134,3 +134,38 @@ lsof -i :8080
 1. Wait 30s for database initialization
 2. Verify `.env` has correct credentials
 3. Check: `docker exec php-fpm-container pg_isready -h postgresql-container -U docker`
+
+---
+
+## Optional Stacks
+
+Run with: `docker compose -f compose.yaml -f compose.<stack>.yml up -d`
+
+### backup - Database Backup/Restore
+
+```bash
+docker compose -f compose.yaml -f compose.backup.yml up -d backup
+make backup                    # Create backup
+make restore file=<file>       # Restore from backup
+```
+
+### monitoring - Prometheus + Grafana
+
+```bash
+docker compose -f compose.yaml -f compose.monitoring.yml up -d
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000 (admin/admin)
+```
+
+### security - Fail2ban + Uptime Kuma
+
+```bash
+docker compose -f compose.yaml -f compose.security.yml up -d
+# Uptime Kuma: http://localhost:3001
+```
+
+### perf - PHP opcache + nginx cache
+
+```bash
+docker compose -f compose.yaml -f compose.perf.yml up -d
+```
