@@ -1,46 +1,12 @@
-# Environment and secrets
+# Environment
 .env
-.env.local
-.env.*.local
-.env.example
-docker-secrets.env
-docker-secrets.env.*
 
-# SSL certificates and keys
-ssl/*.crt
-ssl/*.key
-!ssl/.gitkeep
-
-# Backup files
-backup/*.sql.gz
-backup/*.sql
-
-# IDE and editor
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Build artifacts
-vendor/
-node_modules/
-dist/
-build/
+# Database data
+database/data/
 
 # Logs
 *.log
-logs/
 
-# Monitoring data
-monitoring/prometheus-data/
-monitoring/grafana-data/
-monitoring/elasticsearch-data/
-monitoring/uptime-kuma-data/
-
-# Docker
-*.tar
-
-# OS
-Thumbs.db
+# IDE
+.idea/
+.vscode/

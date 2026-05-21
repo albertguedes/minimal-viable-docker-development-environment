@@ -1,6 +1,6 @@
 # TODO
 
-## Phase 1: Production Hardening (v0.3.0) - COMPLETED
+## Phase 1: Production Hardening (v0.3.0) - DONE
 
 ### Security
 - [x] Add non-root user to all containers
@@ -21,12 +21,12 @@
 - [x] Configure log aggregation (ELK stack or similar)
 - [x] Add uptime monitoring
 
-## Phase 2: Developer Experience (v0.4.0) - COMPLETED
+## Phase 2: Developer Experience (v0.4.0) - DONE
 
 ### Local Development
-- [x] Add PHP xdebug configuration
+- [x] Add PHP xdebug configuration (removed in v0.5.0)
 - [x] Add hot-reload for PHP files
-- [x] Add mailhog/mailhog for local email testing
+- [x] Add mailhog/mailhog for local email testing (removed in v0.5.0)
 - [x] Configure persistent logs
 
 ### Testing
@@ -41,40 +41,12 @@
 - [x] Add deployment guide for major cloud providers
 - [x] Add security hardening guide
 
-## Ideas Backlog
+## v0.5.0 - Minimal Viability
 
-- [ ] Add adminer or pgadmin for database management (use pg for minimal)
-- [ ] Configure reverse proxy with automatic SSL
-- [ ] Add automatic security updates
-- [ ] Configure Kubernetes deployment manifests
+Simplified to core stack: nginx + php-fpm + postgresql only.
 
-## Phase 3: Enterprise Features (v0.5.0)
-
-### Scalability
-- [ ] Configure load balancer
-- [ ] Add horizontal scaling support
-- [ ] Implement caching layer
-- [ ] Add CDN configuration
-
-### Multi-Environment
-- [ ] Add staging environment config
-- [ ] Add production environment config
-- [ ] Add environment-specific docker-compose overrides
-- [ ] Implement blue-green deployment strategy
-
-### Compliance
-- [ ] Add HIPAA/BASIC/GDPR compliance documentation
-- [ ] Add audit logging
-- [ ] Implement secrets rotation
-- [ ] Add security scanning to CI/CD
-
-## Ideas Backlog
-
-- [ ] Add adminer or pgadmin for database management
-- [ ] Add Elasticsearch for full-text search
-- [ ] Add RabbitMQ for message queuing
-- [ ] Configure reverse proxy with automatic SSL
-- [ ] Add automatic security updates
-- [ ] Implement service mesh (Istio/Linkerd)
-- [ ] Add GitOps workflow documentation
-- [ ] Configure Kubernetes deployment manifests
+Removed:
+- Redis
+- Mailhog
+- Xdebug
+- Monitoring/migration/backup/fail2ban extras

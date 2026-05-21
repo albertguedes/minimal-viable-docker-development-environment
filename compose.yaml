@@ -38,22 +38,6 @@ services:
 
         restart: unless-stopped
 
-        deploy:
-            resources:
-                limits:
-                    memory: 512m
-                    cpus: '0.5'
-                reservations:
-                    memory: 256m
-                    cpus: '0.25'
-
-        logging:
-            driver: json-file
-            options:
-                max-size: "10m"
-                max-file: "3"
-                labels: "service"
-
     php:
         build:
             context: ./php/
@@ -61,9 +45,6 @@ services:
 
         image: php-fpm-image
         container_name: php-fpm-container
-
-        ports:
-            - "127.0.0.1:9090:9000"
 
         volumes:
             - ./src:/var/www/html
@@ -77,10 +58,6 @@ services:
             - POSTGRES_DB=${POSTGRES_DB}
             - POSTGRES_USER=${POSTGRES_USER}
             - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            - PHP_IDE_PHPSTORM=XDEBUG
-            - XDEBUG_MODE=debug
-            - XDEBUG_CLIENT_HOST=host.docker.internal
-            - XDEBUG_CLIENT_PORT=9003
 
         depends_on:
             db:
@@ -93,38 +70,6 @@ services:
             retries: 3
 
         restart: unless-stopped
-
-        deploy:
-            resources:
-                limits:
-                    memory: 256m
-                    cpus: '0.5'
-                reservations:
-                    memory: 128m
-                    cpus: '0.25'
-
-        logging:
-            driver: json-file
-            options:
-                max-size: "10m"
-                max-file: "3"
-                labels: "service"
-
-    mailhog:
-        image: mailhog/mailhog:latest
-        container_name: mailhog-container
-        ports:
-            - "127.0.0.1:8025:8025"
-            - "127.0.0.1:1025:1025"
-        networks:
-            - app-network
-        restart: unless-stopped
-        logging:
-            driver: json-file
-            options:
-                max-size: "10m"
-                max-file: "3"
-                labels: "service"
 
     webserver:
         build:
@@ -152,22 +97,6 @@ services:
             start_period: 10s
 
         restart: unless-stopped
-
-        deploy:
-            resources:
-                limits:
-                    memory: 128m
-                    cpus: '0.25'
-                reservations:
-                    memory: 64m
-                    cpus: '0.1'
-
-        logging:
-            driver: json-file
-            options:
-                max-size: "10m"
-                max-file: "3"
-                labels: "service"
 
 networks:
     app-network:

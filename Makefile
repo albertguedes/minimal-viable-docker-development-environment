@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell clean status ps test test-validate test-health test-http test-db
+.PHONY: help build up down logs shell clean status ps test
 
 DOCKER := docker
 COMPOSE := $(DOCKER) compose
@@ -7,21 +7,14 @@ help:
 	@echo "Minimal Viable Docker Development Environment"
 	@echo ""
 	@echo "Usage:"
-	@echo "  make build              Build Docker images"
-	@echo "  make up                 Start all containers"
-	@echo "  make down               Stop all containers"
-	@echo "  make logs               View all logs"
-	@echo "  make logs service=<s>   View service logs (db|php|webserver)"
-	@echo "  make shell service=<s>  Shell into container (db|php|webserver)"
-	@echo "  make status             Show container status"
-	@echo "  make ps                 List running containers"
-	@echo "  make clean              Remove containers and volumes"
-	@echo "  make test               Run all tests"
-	@echo "  make test-validate      Validate docker-compose config"
-	@echo "  make test-health        Wait for services to be healthy"
-	@echo "  make test-http          Test HTTP endpoints"
-	@echo "  make test-db            Test database connectivity"
-	@echo ""
+	@echo "  make build     Build Docker images"
+	@echo "  make up        Start all containers"
+	@echo "  make down      Stop all containers"
+	@echo "  make logs      View all logs"
+	@echo "  make shell     Shell into container (service=php|db|webserver)"
+	@echo "  make clean     Remove containers and volumes"
+	@echo "  make status    Show container status"
+	@echo "  make test      Test HTTP and database"
 
 build:
 	$(COMPOSE) build
@@ -54,17 +47,11 @@ ps:
 clean:
 	$(COMPOSE) down -v --remove-orphans
 
-test: test-validate test-health test-http test-db
+test:
+	@echo "Testing HTTP endpoints..."
+	@curl -sf http://localhost:8080/ > /dev/null && echo "OK: / returns 200"
+	@curl -sf http://localhost:8080/index.php > /dev/null && echo "OK: /index.php returns 200"
+	@curl -sf http://localhost:8080/database.php > /dev/null && echo "OK: /database.php returns 200"
+	@echo "Testing database..."
+	@$(DOCKER) exec postgresql-container pg_isready -U $${POSTGRES_USER:-docker} -d $${POSTGRES_DB:-dockerdb} && echo "OK: database ready"
 	@echo "All tests passed"
-
-test-validate:
-	@bash tests/validate-compose.sh
-
-test-health:
-	@bash tests/test-healthchecks.sh
-
-test-http:
-	@bash tests/test-http-endpoints.sh
-
-test-db:
-	@bash tests/test-db-connection.sh
