@@ -1,6 +1,11 @@
 #
 # jail.local - Fail2ban configuration
 #
+# Installation:
+#   sudo apt install fail2ban
+#   sudo cp security/jail.local /etc/fail2ban/jail.local
+#   sudo systemctl restart fail2ban
+#
 
 [nginx-http-auth]
 enabled = true

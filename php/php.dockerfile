@@ -10,7 +10,6 @@ FROM php:8.4-fpm-alpine
 
 RUN apk add --no-cache libpq-dev postgresql-client \
     && docker-php-ext-install pgsql pdo pdo_pgsql \
-    && adduser -D -u 82 -S www-data \
     && chown -R www-data:www-data /var/www
 
 USER www-data

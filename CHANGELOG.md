@@ -5,48 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.8.1] - 2026-05-21
+
+### Fixed
+- Makefile: `make test` now uses correct `/metrics.php` endpoint
+- php.dockerfile: removed redundant `adduser` (Alpine www-data already exists)
+
+## [v0.8.0] - 2025-05-21
+
+### Minimal Viable Architecture
+Only 3 containers: **nginx + php-fpm + postgresql**
+
+### Host-based Services
+No more container bloat:
+- Backup: `backup/backup.sh` + cron
+- Monitoring: `src/metrics.php` (JSON endpoint)
+- Fail2ban: Host installation (`security/jail.local`)
+- Uptime: Cron (`crontab.txt`)
+
+### Removed
+All extra compose files and containers:
+- prometheus, grafana, db-exporter
+- fail2ban, uptime-kuma containers
+- All `compose.*.yml` override files
+
+### New Files
+- `src/metrics.php` - JSON metrics endpoint
+- `backup/backup.sh` - Cron-friendly backup
+- `backup/restore.sh` - Restore script
+- `security/jail.local` - Fail2ban config
+- `crontab.txt` - Cron jobs
+
+## [v0.7.0] - 2025-05-21
+
+Profiles reorganization.
+
 ## [v0.6.0] - 2025-05-21
 
-### Multi-Environment
-- `compose.env.staging.yml` - Staging environment config
-- `compose.env.production.yml` - Production environment config
-
-### Scalability
-- `compose.scale.yml` - Horizontal scaling support
-- `scale/lb.conf` - nginx load balancer upstream
-
-### Compliance & Enterprise
-- `compose.audit.yml` - PostgreSQL audit logging
-- `docs/guides/SECRETS_ROTATION.md` - Secrets rotation guide
-- `docs/guides/BLUE_GREEN.md` - Blue-green deployment guide
-
-### Optional Stacks
-All stacks now available as compose overrides:
-- `backup` - Database backup/restore
-- `monitoring` - Prometheus + Grafana
-- `security` - Fail2ban + Uptime Kuma
-- `perf` - PHP opcache + nginx cache
-- `audit` - PostgreSQL audit logging
-- `scale` - Horizontal scaling
-- `env.staging` / `env.production` - Environment profiles
+Enterprise features.
 
 ## [v0.5.0] - 2025-05-21
 
-### Minimal Stack
-Only nginx, php-fpm, postgresql.
+Minimal stack only.
 
-## [v0.4.0] - 2025-05-21
+## [v0.3.0] - [v0.4.0] - Previous phases
 
-Phase 2 development experience improvements.
-
-## [v0.3.0] - 2025-05-21
-
-Phase 1 production hardening.
-
-## [v0.2.0] - 2025-05-21
-
-Environment variables, health checks, restart policies.
-
-## [v0.1.0] - 2022-12-07
-
-Initial release with nginx, php-fpm, and postgresql.
+Phase 1-2 features.

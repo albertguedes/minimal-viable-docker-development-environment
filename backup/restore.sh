@@ -1,16 +1,25 @@
 #!/bin/bash
 #
 # restore.sh - Restore PostgreSQL database
-# Usage: ./restore.sh <backup_file> [container]
+# Usage: ./restore.sh <backup_file>
 #
-
 set -e
+
 BACKUP_FILE="$1"
-CONTAINER="${2:-postgresql-container}"
+CONTAINER="${POSTGRES_CONTAINER:-postgresql-container}"
+DB_NAME="${POSTGRES_DB:-dockerdb}"
+DB_USER="${POSTGRES_USER:-docker}"
 
-[ -z "$BACKUP_FILE" ] && echo "Usage: $0 <backup_file>" && exit 1
-[ ! -f "$BACKUP_FILE" ] && echo "File not found: $BACKUP_FILE" && exit 1
+if [ -z "$BACKUP_FILE" ]; then
+    echo "Usage: $0 <backup_file>"
+    exit 1
+fi
 
-echo "Restoring from $BACKUP_FILE..."
-gunzip -c "$BACKUP_FILE" | docker exec -i "$CONTAINER" psql -U "${POSTGRES_USER:-docker}" -d "${POSTGRES_DB:-dockerdb}"
-echo "Done."
+if [ ! -f "$BACKUP_FILE" ]; then
+    echo "File not found: $BACKUP_FILE"
+    exit 1
+fi
+
+echo "[$(date)] Restoring from $BACKUP_FILE..."
+gunzip -c "$BACKUP_FILE" | docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME"
+echo "[$(date)] Restore complete"
