@@ -1,0 +1,29 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+.env.example
+
+# IDE and editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+vendor/
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# AGENTS.md (local developer notes)
+AGENTS.md
+
+# Docker
+*.tar
