@@ -27,7 +27,6 @@
 - [x] Add PHP xdebug configuration
 - [x] Add hot-reload for PHP files
 - [x] Add mailhog/mailhog for local email testing
-- [x] Add Redis for session/cache management
 - [x] Configure persistent logs
 
 ### Testing
@@ -41,6 +40,13 @@
 - [x] Add API documentation template
 - [x] Add deployment guide for major cloud providers
 - [x] Add security hardening guide
+
+## Ideas Backlog
+
+- [ ] Add adminer or pgadmin for database management (use pg for minimal)
+- [ ] Configure reverse proxy with automatic SSL
+- [ ] Add automatic security updates
+- [ ] Configure Kubernetes deployment manifests
 
 ## Phase 3: Enterprise Features (v0.5.0)
 

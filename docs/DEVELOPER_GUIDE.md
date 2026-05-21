@@ -107,7 +107,7 @@ Technical documentation for developers working on this project.
 ### php-fpm
 
 - **Image**: `php:8.4-fpm-alpine`
-- **Extensions**: `pgsql`, `pdo`, `pdo_pgsql`, `redis`, `xdebug`
+- **Extensions**: `pgsql`, `pdo`, `pdo_pgsql`, `xdebug`
 - **Healthcheck**: `pg_isready -h postgresql-container`
 - **Environment**: Reads DB credentials from `.env`
 - **Xdebug**: Port 9003, mode debug, trigger via `?XDEBUG_SESSION_START=1`
@@ -119,13 +119,6 @@ Technical documentation for developers working on this project.
 - **Healthcheck**: `pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}`
 - **Credentials**: From `.env` via `env_file`
 - **Volume Mount**: `./database/data` → `/var/lib/postgresql/data`
-
-### redis
-
-- **Image**: `redis:7-alpine`
-- **Port**: 6379
-- **Use**: Session handler or cache
-- **Volume**: `redis-data` persist
 
 ---
 

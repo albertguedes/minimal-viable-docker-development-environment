@@ -77,8 +77,6 @@ services:
             - POSTGRES_DB=${POSTGRES_DB}
             - POSTGRES_USER=${POSTGRES_USER}
             - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            - REDIS_HOST=redis-container
-            - REDIS_PORT=6379
             - PHP_IDE_PHPSTORM=XDEBUG
             - XDEBUG_MODE=debug
             - XDEBUG_CLIENT_HOST=host.docker.internal
@@ -86,8 +84,6 @@ services:
 
         depends_on:
             db:
-                condition: service_healthy
-            redis:
                 condition: service_healthy
 
         healthcheck:
@@ -107,36 +103,6 @@ services:
                     memory: 128m
                     cpus: '0.25'
 
-        logging:
-            driver: json-file
-            options:
-                max-size: "10m"
-                max-file: "3"
-                labels: "service"
-
-    redis:
-        image: redis:7-alpine
-        container_name: redis-container
-        ports:
-            - "127.0.0.1:6379:6379"
-        networks:
-            - app-network
-        volumes:
-            - redis-data:/data
-        healthcheck:
-            test: ["CMD-SHELL", "redis-cli ping"]
-            interval: 10s
-            timeout: 5s
-            retries: 3
-        restart: unless-stopped
-        deploy:
-            resources:
-                limits:
-                    memory: 128m
-                    cpus: '0.25'
-                reservations:
-                    memory: 64m
-                    cpus: '0.1'
         logging:
             driver: json-file
             options:
@@ -206,6 +172,3 @@ services:
 networks:
     app-network:
         driver: bridge
-
-volumes:
-    redis-data:

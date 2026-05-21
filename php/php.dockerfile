@@ -10,9 +10,8 @@ FROM php:8.4-fpm-alpine
 
 RUN apk add --no-cache libpq-dev postgresql-client autoconf bison flex gcc g++ make libc-dev musl-dev re2c \
     && docker-php-ext-install pgsql pdo pdo_pgsql \
-    && docker-php-ext-install redis \
     && pecl install xdebug \
-    && docker-php-ext-enable xdebug redis \
+    && docker-php-ext-enable xdebug \
     && adduser -D -u 82 -S www-data \
     && chown -R www-data:www-data /var/www
 

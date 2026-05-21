@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Local Development
 - **PHP Xdebug**: Added xdebug 3 configuration with `php/xdebug.ini`
-- **Redis**: Added Redis 7 Alpine with PHP redis extension
 - **Mailhog**: Added Mailhog for local email testing (ports 8025, 1025)
 - **Hot-reload**: PHP files auto-reload via volume mount
 
@@ -25,9 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Deployment guide**: Added `docs/guides/DEPLOYMENT.md` (AWS, GCP, Azure, Swarm, Kubernetes)
 - **Security hardening guide**: Added `docs/guides/SECURITY_HARDENING.md`
 
+### Removed
+- **Redis**: Removed (PostgreSQL can handle caching/sessions for minimal projects)
+
 ### Updated Files
-- `php/php.dockerfile` - Added xdebug, redis extension
-- `compose.yaml` - Added redis, mailhog services
+- `php/php.dockerfile` - Added xdebug (removed redis)
+- `compose.yaml` - Removed redis service
+- `docs/DEVELOPER_GUIDE.md` - Updated service list
 - `.gitignore` - Updated for new directories
 
 ## [v0.3.0] - 2025-05-21
