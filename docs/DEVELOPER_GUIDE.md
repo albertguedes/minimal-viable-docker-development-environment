@@ -169,3 +169,25 @@ docker compose -f compose.yaml -f compose.security.yml up -d
 ```bash
 docker compose -f compose.yaml -f compose.perf.yml up -d
 ```
+
+### scale - Horizontal Scaling
+
+```bash
+docker compose -f compose.yaml -f compose.scale.yml up -d --scale php=3
+```
+
+### audit - PostgreSQL Audit Logging
+
+```bash
+docker compose -f compose.yaml -f compose.audit.yml up -d
+```
+
+### env.staging / env.production - Environments
+
+```bash
+# Staging
+docker compose -f compose.yaml -f compose.env.staging.yml up -d
+
+# Production
+docker compose -f compose.yaml -f compose.env.production.yml up -d
+```

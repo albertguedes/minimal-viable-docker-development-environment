@@ -45,8 +45,21 @@
 
 Simplified to core stack: nginx + php-fpm + postgresql only.
 
-Removed:
-- Redis
-- Mailhog
-- Xdebug
-- Monitoring/migration/backup/fail2ban extras
+## v0.6.0 - Phase 3: Enterprise Features
+
+### Multi-Environment
+- [x] compose.env.staging.yml - Staging environment
+- [x] compose.env.production.yml - Production environment
+
+### Scalability
+- [x] compose.scale.yml - Horizontal scaling with nginx load balancer
+- [x] scale/lb.conf - nginx upstream configuration
+
+### Compliance
+- [x] compose.audit.yml - PostgreSQL audit logging
+- [x] audit/pg_audit.conf - Audit configuration
+- [x] docs/guides/SECRETS_ROTATION.md - Secrets rotation guide
+- [x] docs/guides/BLUE_GREEN.md - Blue-green deployment guide
+
+### Optional Stacks Available
+- backup, monitoring, security, perf, audit, scale, env.staging, env.production

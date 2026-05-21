@@ -1,0 +1,23 @@
+#
+# compose.scale.yml - Horizontal scaling support
+# Usage: docker compose -f compose.yaml -f compose.scale.yml up -d --scale php=3
+#
+
+services:
+
+    php:
+        deploy:
+            replicas: 2
+        profiles:
+            - scale
+
+    webserver:
+        configs:
+            - source: lb.conf
+              target: /etc/nginx/conf.d/lb.conf
+        profiles:
+            - scale
+
+configs:
+    lb.conf:
+        file: ./scale/lb.conf
