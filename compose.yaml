@@ -38,6 +38,22 @@ services:
 
         restart: unless-stopped
 
+        deploy:
+            resources:
+                limits:
+                    memory: 512m
+                    cpus: '0.5'
+                reservations:
+                    memory: 256m
+                    cpus: '0.25'
+
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+                labels: "service"
+
     php:
         build:
             context: ./php/
@@ -74,6 +90,22 @@ services:
 
         restart: unless-stopped
 
+        deploy:
+            resources:
+                limits:
+                    memory: 256m
+                    cpus: '0.5'
+                reservations:
+                    memory: 128m
+                    cpus: '0.25'
+
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+                labels: "service"
+
     webserver:
         build:
             context: ./webserver/
@@ -100,6 +132,22 @@ services:
             start_period: 10s
 
         restart: unless-stopped
+
+        deploy:
+            resources:
+                limits:
+                    memory: 128m
+                    cpus: '0.25'
+                reservations:
+                    memory: 64m
+                    cpus: '0.1'
+
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+                labels: "service"
 
 networks:
     app-network:

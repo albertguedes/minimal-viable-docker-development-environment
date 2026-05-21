@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.3.0] - 2025-05-21
+
+### Security
+- **Non-root containers**: Added `www-data` user for PHP, `nginx` user for nginx, `postgres` user for database
+- **Docker Secrets**: Added `secrets/docker-secrets.env.example` template for Swarm mode
+- **Rate limiting**: Configured nginx with `limit_req_zone` for API (10r/s) and general (30r/s) endpoints
+- **SSL/TLS**: Added `ssl.conf` with TLS 1.2/1.3, secure ciphers, and security headers
+- **Fail2ban**: Added intrusion prevention with filters for auth failures, missing scripts, and req limits
+
+### Reliability
+- **Log rotation**: Configured JSON logging with 10MB max size and 3 files per service
+- **Resource limits**: Added memory and CPU limits/reservations for all containers
+- **Database backup**: Added automated backup script with 7-day retention and restore script
+- **Auto-restart**: All services already configured with `restart: unless-stopped`
+
+### Monitoring
+- **Prometheus**: Added `prometheus.yml` configuration with scrape targets
+- **Grafana**: Added `docker-compose.monitoring.yml` with Prometheus + Grafana + postgres_exporter
+- **ELK stack**: Added `docker-compose.logging.yml` with Elasticsearch + Logstash + Kibana
+- **Uptime monitoring**: Added Uptime Kuma to logging compose
+
+### Added Files
+- `ssl/generate-ssl.sh` - Self-signed certificate generator
+- `fail2ban/filter.d/*.conf` - Fail2ban filters
+- `fail2ban/jail.local` - Fail2ban jail configuration
+- `backup/backup.sh` - PostgreSQL backup script
+- `backup/restore.sh` - PostgreSQL restore script
+- `monitoring/prometheus.yml` - Prometheus scrape config
+- `monitoring/docker-compose.monitoring.yml` - Monitoring stack
+- `monitoring/docker-compose.logging.yml` - ELK + Uptime Kuma stack
+
 ## [v0.2.0] - 2025-05-21
 
 ### Added

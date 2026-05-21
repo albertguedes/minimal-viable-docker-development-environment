@@ -22,18 +22,37 @@ Technical documentation for developers working on this project.
 │   ├── index.php                # PHP info page
 │   └── database.php             # PostgreSQL connection test
 ├── database/                  # Database service
-│   └── postgresql.dockerfile    # PostgreSQL 15 Alpine image
+│   └── postgresql.dockerfile    # PostgreSQL 17 Alpine image
 ├── php/                         # PHP-FPM service
-│   └── php.dockerfile           # PHP 8.2 FPM Alpine + PostgreSQL extensions
+│   └── php.dockerfile           # PHP 8.4 FPM Alpine + PostgreSQL extensions
 ├── webserver/                   # Nginx service
-│   ├── nginx.dockerfile         # Nginx 1.25 Alpine + curl
+│   ├── nginx.dockerfile         # Nginx 1.27 Alpine + curl
 │   └── nginx/
-│       └── default.conf         # Nginx FastCGI configuration
+│       ├── default.conf         # Nginx FastCGI configuration
+│       └── ssl.conf            # SSL/TLS configuration
 ├── tests/                       # Test scripts
 │   ├── validate-compose.sh       # compose.yaml validation
 │   ├── test-healthchecks.sh     # Service health verification
 │   ├── test-http-endpoints.sh   # HTTP endpoint tests
 │   └── test-db-connection.sh   # Database connectivity tests
+├── backup/                       # Database backup scripts
+│   ├── backup.sh                # Automated backup with 7-day retention
+│   └── restore.sh               # Restore from backup
+├── fail2ban/                     # Intrusion prevention
+│   ├── filter.d/
+│   │   ├── nginx-auth.conf      # Auth failure detection
+│   │   ├── nginx-noscript.conf  # Missing script detection
+│   │   └── nginx-req-limit.conf # Rate limit detection
+│   └── jail.local              # Fail2ban jail configuration
+├── monitoring/                   # Monitoring stack
+│   ├── prometheus.yml           # Prometheus scrape config
+│   ├── docker-compose.monitoring.yml  # Prometheus + Grafana
+│   ├── docker-compose.logging.yml     # ELK + Uptime Kuma
+│   └── logstash.conf           # Logstash pipeline
+├── ssl/                          # SSL certificates
+│   └── generate-ssl.sh          # Self-signed cert generator
+├── secrets/                      # Docker Secrets template
+│   └── docker-secrets.env.example
 ├── docs/                        # Documentation
 ├── compose.yaml           # Service orchestration
 ├── Makefile                     # Developer commands
@@ -285,3 +304,114 @@ netstat -tulpn | grep 8080
 | Docker Compose | 3.8 |
 
 See [VERSION](./VERSION) file for project version.
+
+---
+
+## Phase 1: Production Hardening (v0.3.0)
+
+### Security Features
+
+#### Non-Root Containers
+All containers run as non-root users for security:
+
+| Service | User | UID |
+|---------|------|-----|
+| nginx | nginx | 82 |
+| php-fpm | www-data | 82 |
+| postgresql | postgres | 999 |
+
+#### Rate Limiting
+nginx is configured with rate limiting:
+
+| Zone | Rate | Burst |
+|------|------|-------|
+| api_limit | 10r/s | 20 |
+| general_limit | 30r/s | 50 |
+
+#### SSL/TLS
+SSL configuration is available in `webserver/nginx/ssl.conf`:
+
+```bash
+# Generate self-signed certificate
+./ssl/generate-ssl.sh
+```
+
+#### Docker Secrets (Production)
+For Swarm mode, use Docker Secrets:
+
+```bash
+# Create secret
+echo "your_password" | docker secret create db_password -
+docker secret create db_user db_user.txt
+
+# Use in compose
+secrets:
+  - db_password
+```
+
+### Resource Limits
+
+Each service has memory and CPU limits:
+
+| Service | Memory Limit | Memory Reservation | CPU Limit |
+|---------|--------------|-------------------|-----------|
+| db | 512m | 256m | 0.5 |
+| php | 256m | 128m | 0.5 |
+| webserver | 128m | 64m | 0.25 |
+
+### Log Rotation
+
+JSON logging is configured with:
+- Max file size: 10MB
+- Max files: 3
+- Labels: service name
+
+View logs:
+```bash
+docker compose logs --tail=100 webserver
+docker compose logs --since 5m db
+```
+
+### Database Backup
+
+Automated backup with 7-day retention:
+
+```bash
+# Create backup
+./backup/backup.sh
+
+# Restore from backup
+./backup/restore.sh ./backup/postgresql_20250521_120000.sql.gz
+```
+
+Backups are stored in `./backup/` directory.
+
+### Monitoring Stack
+
+Start monitoring services:
+
+```bash
+# Prometheus + Grafana
+docker compose -f monitoring/docker-compose.monitoring.yml up -d
+
+# ELK + Uptime Kuma
+docker compose -f monitoring/docker-compose.logging.yml up -d
+```
+
+Access:
+| Service | URL | Default Credentials |
+|---------|-----|---------------------|
+| Prometheus | http://localhost:9090 | - |
+| Grafana | http://localhost:3000 | admin/admin |
+| Kibana | http://localhost:5601 | - |
+| Elasticsearch | http://localhost:9200 | - |
+| Uptime Kuma | http://localhost:3001 | - |
+
+### Fail2ban Intrusion Prevention
+
+Fail2ban filters are configured for:
+- `nginx-auth`: Authentication failures
+- `nginx-noscript`: Missing script requests
+- `nginx-req-limit`: Rate limit violations
+
+To enable, run fail2ban on the host with `fail2ban/jail.local`.

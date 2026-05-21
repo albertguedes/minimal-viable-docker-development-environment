@@ -289,13 +289,41 @@ docker compose restart php
 
 ### For Production
 
-Consider these additional measures:
+This project includes production hardening features (Phase 1):
 
-1. **SSL/TLS**: Configure HTTPS with a reverse proxy
-2. **Docker Secrets**: Use Docker Secrets for credentials
-3. **Network Isolation**: Use firewall rules
-4. **Resource Limits**: Add memory/CPU limits
-5. **Backup Strategy**: Implement regular database backups
+1. **SSL/TLS**: Configure HTTPS - run `./ssl/generate-ssl.sh` and update nginx config
+2. **Docker Secrets**: Use Swarm secrets via `secrets/docker-secrets.env.example`
+3. **Rate Limiting**: nginx is pre-configured with API (10r/s) and general (30r/s) limits
+4. **Resource Limits**: Memory and CPU limits are configured per service
+5. **Backup Strategy**: Use `./backup/backup.sh` for automated backups
+6. **Intrusion Prevention**: Fail2ban filters available in `fail2ban/` directory
+7. **Monitoring**: Deploy with `monitoring/docker-compose.monitoring.yml` or `docker-compose.logging.yml`
+
+#### Production Deployment
+
+```bash
+# Start with monitoring stack
+docker compose -f compose.yaml -f monitoring/docker-compose.monitoring.yml up -d
+
+# Generate SSL certificates
+./ssl/generate-ssl.sh
+
+# Create backups before updates
+./backup/backup.sh
+```
+
+#### Monitoring
+
+Access monitoring tools at:
+
+| Service | URL |
+|---------|-----|
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3000 |
+| Kibana | http://localhost:5601 |
+| Uptime Kuma | http://localhost:3001 |
+
+Default Grafana credentials: `admin` / `admin`
 
 ---
 

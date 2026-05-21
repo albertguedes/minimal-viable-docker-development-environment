@@ -1,0 +1,35 @@
+#
+# jail.local - Fail2ban configuration for nginx
+#
+# To use: copy to /etc/fail2ban/jail.local or include from jail.conf
+#
+
+[nginx-auth]
+enabled = true
+port = http,https
+filter = nginx-auth
+logpath = /var/log/nginx/*error*.log
+maxretry = 5
+findtime = 600
+bantime = 86400
+action = iptables-allports
+
+[nginx-noscript]
+enabled = true
+port = http,https
+filter = nginx-noscript
+logpath = /var/log/nginx/*access*.log
+maxretry = 3
+findtime = 600
+bantime = 86400
+action = iptables-allports
+
+[nginx-req-limit]
+enabled = true
+port = http,https
+filter = nginx-req-limit
+logpath = /var/log/nginx/*error*.log
+maxretry = 50
+findtime = 60
+bantime = 86400
+action = iptables-allports

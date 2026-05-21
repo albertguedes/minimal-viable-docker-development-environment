@@ -3,6 +3,17 @@
 .env.local
 .env.*.local
 .env.example
+docker-secrets.env
+docker-secrets.env.*
+
+# SSL certificates and keys
+ssl/*.crt
+ssl/*.key
+!ssl/.gitkeep
+
+# Backup files
+backup/*.sql.gz
+backup/*.sql
 
 # IDE and editor
 .idea/
@@ -22,8 +33,14 @@ build/
 *.log
 logs/
 
-# AGENTS.md (local developer notes)
-AGENTS.md
+# Monitoring data
+monitoring/prometheus-data/
+monitoring/grafana-data/
+monitoring/elasticsearch-data/
+monitoring/uptime-kuma-data/
 
 # Docker
 *.tar
+
+# OS
+Thumbs.db
