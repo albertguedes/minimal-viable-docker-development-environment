@@ -85,16 +85,19 @@ jobs:
       - name: Start Docker Compose stack
         run: docker compose up -d
 
-      - name: Wait for services to be healthy
+      - name: Wait for services to start
         run: |
           for i in {1..30}; do
-            if docker compose ps --format json | grep -q '"Health":"healthy"'; then
-              echo "Services are healthy"
+            if docker compose ps --format json | grep -q '"State":"running"'; then
+              echo "Services are running"
               break
             fi
             echo "Waiting for services... ($i/30)"
             sleep 2
           done
+
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 15
 
       - name: Run Unit tests
         run: composer test:unit
