@@ -117,7 +117,7 @@ jobs:
       - name: Generate release notes
         uses: softprops/action-gh-release@v2
         with:
-          tag: ${{ steps.version.outputs.tag }}
+          tag_name: ${{ steps.version.outputs.tag }}
           body: |
             ## Changes
 
