@@ -160,14 +160,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ vars.DOCKER_REGISTRY || 'docker.io' }}
-          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
-
       - name: Login to GitHub Container Registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -181,7 +173,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ vars.DOCKER_REGISTRY || 'docker.io' }}/${{ vars.DOCKER_IMAGE_NAME || github.repository }}
+            ghcr.io/${{ github.repository }}
           tags: |
             type=sha,prefix={{branch}}-
             type=ref,event=branch
@@ -192,7 +184,7 @@ jobs:
         with:
           context: ./database
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}-db
+          tags: ghcr.io/${{ github.repository }}/db:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -201,7 +193,7 @@ jobs:
         with:
           context: ./php
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}-php
+          tags: ghcr.io/${{ github.repository }}/php:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -210,7 +202,7 @@ jobs:
         with:
           context: ./webserver
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}-webserver
+          tags: ghcr.io/${{ github.repository }}/webserver:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

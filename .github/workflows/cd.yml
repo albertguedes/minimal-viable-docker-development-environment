@@ -58,7 +58,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ vars.DOCKER_REGISTRY || 'docker.io' }}/${{ vars.DOCKER_IMAGE_NAME || github.repository }}
+            ghcr.io/${{ github.repository }}
           tags: |
             type=semver,pattern={{version}}
             type=sha,prefix=
@@ -69,8 +69,8 @@ jobs:
           context: ./database
           push: true
           tags: |
-            ${{ steps.meta.outputs.tags }}-db:${{ steps.version.outputs.version }}
             ghcr.io/${{ github.repository }}/db:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository }}/db:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -80,8 +80,8 @@ jobs:
           context: ./php
           push: true
           tags: |
-            ${{ steps.meta.outputs.tags }}-php:${{ steps.version.outputs.version }}
             ghcr.io/${{ github.repository }}/php:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository }}/php:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -91,8 +91,8 @@ jobs:
           context: ./webserver
           push: true
           tags: |
-            ${{ steps.meta.outputs.tags }}-webserver:${{ steps.version.outputs.version }}
             ghcr.io/${{ github.repository }}/webserver:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository }}/webserver:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -102,15 +102,10 @@ jobs:
           body: |
             ## Docker Images
 
-            Images tagged: `${{ steps.version.outputs.tag }}`
+            Images available on GitHub Container Registry:
 
             ```bash
-            # Docker Hub
-            docker pull ${{ vars.DOCKER_REGISTRY || 'docker.io' }}/${{ vars.DOCKER_IMAGE_NAME || github.repository }}/webserver:${{ steps.version.outputs.version }}
-            docker pull ${{ vars.DOCKER_REGISTRY || 'docker.io' }}/${{ vars.DOCKER_IMAGE_NAME || github.repository }}/php:${{ steps.version.outputs.version }}
-            docker pull ${{ vars.DOCKER_REGISTRY || 'docker.io' }}/${{ vars.DOCKER_IMAGE_NAME || github.repository }}/db:${{ steps.version.outputs.version }}
-
-            # GitHub Container Registry
+            # GitHub Container Registry (GHCR)
             docker pull ghcr.io/${{ github.repository }}/webserver:${{ steps.version.outputs.version }}
             docker pull ghcr.io/${{ github.repository }}/php:${{ steps.version.outputs.version }}
             docker pull ghcr.io/${{ github.repository }}/db:${{ steps.version.outputs.version }}
