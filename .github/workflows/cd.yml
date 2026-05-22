@@ -38,9 +38,25 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Release notes preview
+      - name: Generate changelog
+        id: changelog
         run: |
-          echo "Preparing release ${{ steps.version.outputs.tag }}"
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD 2>/dev/null | tail -1)
+          fi
+          echo "prev_tag=$PREV_TAG" >> "$GITHUB_OUTPUT"
+
+          CHANGELOG=$(git log "$PREV_TAG..HEAD" --oneline --format='- %s' 2>/dev/null || echo "")
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="- Initial release"
+          fi
+          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
+
+      - name: Update VERSION file
+        run: |
+          echo "${{ steps.version.outputs.version }}" > VERSION
+          cat VERSION
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -101,7 +117,12 @@ jobs:
       - name: Generate release notes
         uses: softprops/action-gh-release@v2
         with:
+          tag: ${{ steps.version.outputs.tag }}
           body: |
+            ## Changes
+
+            ${{ steps.changelog.outputs.changelog }}
+
             ## Docker Images
 
             Images available on GitHub Container Registry:
@@ -114,7 +135,7 @@ jobs:
             ```
 
             See [CHANGELOG.md](./docs/CHANGELOG.md) for full release notes.
-          generate_release_notes: true
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
