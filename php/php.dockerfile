@@ -8,7 +8,7 @@
 #
 FROM php:8.4-fpm-alpine
 
-RUN apk add --no-cache libpq-dev postgresql-client \
+RUN apk add libpq-dev postgresql-client \
     && docker-php-ext-install pgsql pdo pdo_pgsql
 
 USER www-data
