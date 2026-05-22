@@ -34,8 +34,10 @@ services:
 
     php:
         build:
-            context: ./php/
-            dockerfile: php.dockerfile
+            context: .
+            dockerfile: php/php.dockerfile
+            args:
+                PHP_VERSION: "8.4"
 
         image: php-fpm-image
         container_name: mv-php-fpm-container
@@ -47,6 +49,8 @@ services:
 
         volumes:
             - ./src:/var/www/html
+            - ./php/phpunit.xml.dist:/var/www/phpunit.xml.dist:ro
+            - ./php/tests:/var/www/tests:ro
 
         environment:
             - POSTGRES_HOST=127.0.0.1

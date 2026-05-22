@@ -25,13 +25,10 @@ jobs:
       fail-fast: true
       matrix:
         php: ["8.2", "8.3", "8.4"]
-        include:
-          - php: "8.4"
-            postgres: "postgres:17-alpine"
 
     services:
       postgres:
-        image: ${{ matrix.postgres || 'postgres:17-alpine' }}
+        image: postgres:17-alpine
         env:
           POSTGRES_DB: dockerdb
           POSTGRES_USER: docker
@@ -49,38 +46,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_pgsql, pgsql
-          tools: composer:v2
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        shell: bash
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
-
       - name: Create .env file
         run: |
           cat > .env << 'EOF'
           POSTGRES_DB=dockerdb
           POSTGRES_USER=docker
           POSTGRES_PASSWORD=docker
-          POSTGRES_HOST=db
-          POSTGRES_PORT=5432
           EOF
+
+      - name: Build PHP image
+        run: docker compose build --build-arg PHP_VERSION=${{ matrix.php }} php
 
       - name: Start Docker Compose stack
         run: docker compose up -d
@@ -98,10 +73,16 @@ jobs:
           done
 
       - name: Run Unit tests
-        run: composer test:unit
+        run: docker compose run --rm php phpunit --testsuite=Unit
+        env:
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: dockerdb
+          POSTGRES_USER: docker
+          POSTGRES_PASSWORD: docker
 
       - name: Run Integration tests
-        run: composer test:integration
+        run: docker compose run --rm php phpunit --testsuite=Integration
         env:
           POSTGRES_HOST: 127.0.0.1
           POSTGRES_PORT: 5432
@@ -193,6 +174,7 @@ jobs:
         with:
           context: ./php
           push: ${{ github.event_name != 'pull_request' }}
+          build-args: PHP_VERSION=${{ matrix.php }}
           tags: ghcr.io/${{ github.repository }}/php:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

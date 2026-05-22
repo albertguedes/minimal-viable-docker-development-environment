@@ -1,14 +1,31 @@
 #
 # php.dockerfile - a dockerfile to create a php-fpm server image.
 #
-# created: 2022-12-07
-# author: albert r. carnier guedes (albert@teko.net.br)
+# Usage:
+#   docker build --build-arg PHP_VERSION=8.4 -t php-fpm-image .
 #
-# Distributed under the MIT License. See LICENSE for more information.
+# Supports: 8.2, 8.3, 8.4
 #
-FROM php:8.4-fpm-alpine
+FROM php:${PHP_VERSION:-8.4}-fpm-alpine
 
-RUN apk add libpq-dev postgresql-client \
-    && docker-php-ext-install pgsql pdo pdo_pgsql
+RUN apk add --no-cache \
+    libpq-dev \
+    postgresql-client \
+    curl \
+    unzip
+
+RUN docker-php-ext-install pdo pdo_pgsql pgsql
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN curl -sL https://phar.phpunit.de/phpunit-11.phar -o /usr/local/bin/phpunit \
+    && chmod +x /usr/local/bin/phpunit
+
+COPY php/phpunit.xml.dist /var/www/phpunit.xml.dist
+COPY php/tests /var/www/tests
+
+COPY src /var/www/html
+
+RUN chown -R www-data:www-data /var/www
 
 USER www-data

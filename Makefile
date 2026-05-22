@@ -24,7 +24,7 @@ help:
 	@echo "  make crontab        Install crontab jobs"
 
 build:
-	$(COMPOSE) build
+	$(COMPOSE) build --build-arg PHP_VERSION=8.4
 
 up:
 	$(COMPOSE) up -d
@@ -67,13 +67,13 @@ test:
 	@$(DOCKER) exec mv-postgresql-container pg_isready -U docker -d dockerdb && echo "OK: db"
 	@echo ""
 	@echo "Running PHPUnit tests..."
-	@composer test
+	@$(COMPOSE) run --rm php phpunit --configuration /var/www/phpunit.xml.dist
 
 test-unit:
-	@composer test:unit
+	@$(COMPOSE) run --rm php phpunit --configuration /var/www/phpunit.xml.dist --testsuite=Unit
 
 test-integration:
-	@composer test:integration
+	@$(COMPOSE) run --rm php phpunit --configuration /var/www/phpunit.xml.dist --testsuite=Integration
 
 test-backup:
 	@bash backup/test_backup.sh

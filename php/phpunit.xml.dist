@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="phpunit.xsd"
          bootstrap="tests/bootstrap.php"
          colors="true"
          executionOrder="depends,defects"
@@ -24,7 +24,7 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="POSTGRES_HOST" value="db"/>
+        <env name="POSTGRES_HOST" value="127.0.0.1"/>
         <env name="POSTGRES_PORT" value="5432"/>
         <env name="POSTGRES_DB" value="dockerdb"/>
         <env name="POSTGRES_USER" value="docker"/>
