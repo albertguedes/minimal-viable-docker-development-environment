@@ -23,7 +23,6 @@ RUN curl -sL https://phar.phpunit.de/phpunit-11.phar -o /usr/local/bin/phpunit \
 
 COPY php/phpunit.xml.dist /var/www/phpunit.xml.dist
 COPY php/tests /var/www/tests
-
 COPY src /var/www/html
 
 RUN chown -R www-data:www-data /var/www

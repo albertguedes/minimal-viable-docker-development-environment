@@ -14,7 +14,7 @@ services:
     db:
         build:
             context: ./database/
-            dockerfile: postgresql.dockerfile
+            dockerfile: Dockerfile
 
         image: postgresql-image
         container_name: mv-postgresql-container
@@ -35,7 +35,7 @@ services:
     php:
         build:
             context: .
-            dockerfile: php/php.dockerfile
+            dockerfile: php/Dockerfile
             args:
                 PHP_VERSION: "8.4"
 
@@ -64,7 +64,7 @@ services:
     webserver:
         build:
             context: ./webserver/
-            dockerfile: nginx.dockerfile
+            dockerfile: Dockerfile
 
         image: nginx-image
         container_name: mv-nginx-container
