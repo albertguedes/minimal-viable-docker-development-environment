@@ -173,7 +173,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          dockerfile: php/Dockerfile
+          file: php/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           build-args: PHP_VERSION=${{ matrix.php }}
           tags: ghcr.io/${{ github.repository }}/php:${{ github.sha }}
