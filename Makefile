@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell clean test test-backup backup restore crontab
+.PHONY: help build up down logs shell clean test test-backup backup restore crontab test:unit test:integration
 
 DOCKER := docker
 COMPOSE := $(DOCKER) compose
@@ -15,7 +15,9 @@ help:
 	@echo "  make logs           View logs"
 	@echo "  make shell          Shell into container (service=php|db|webserver)"
 	@echo "  make clean          Remove containers and volumes"
-	@echo "  make test           Run HTTP and DB tests"
+	@echo "  make test           Run all tests (curl + phpunit)"
+	@echo "  make test:unit      Run unit tests only"
+	@echo "  make test:integration  Run integration tests only"
 	@echo "  make test-backup    Run backup script tests"
 	@echo "  make backup         Backup database"
 	@echo "  make restore        Restore database (file=<backup>)"
@@ -42,9 +44,9 @@ shell:
 		exit 1; \
 	fi
 	@case "$(service)" in \
-		db) container="postgresql-container";; \
-		php) container="php-fpm-container";; \
-		webserver) container="nginx-container";; \
+		db) container="mv-postgresql-container";; \
+		php) container="mv-php-fpm-container";; \
+		webserver) container="mv-nginx-container";; \
 		*) echo "Invalid service: $(service)"; exit 1;; \
 	esac
 	$(DOCKER) exec -it $$container /bin/sh
@@ -56,14 +58,22 @@ status:
 	$(COMPOSE) ps
 
 test:
-	@echo "Testing..."
+	@echo "Testing endpoints..."
 	@curl -sf http://localhost:8080/ > /dev/null && echo "OK: /"
 	@curl -sf http://localhost:8080/index.php > /dev/null && echo "OK: /index.php"
 	@curl -sf http://localhost:8080/database.php > /dev/null && echo "OK: /database.php"
 	@curl -sf http://localhost:8080/health > /dev/null && echo "OK: /health"
 	@curl -sf http://localhost:8080/metrics.php > /dev/null && echo "OK: /metrics.php"
 	@$(DOCKER) exec mv-postgresql-container pg_isready -U docker -d dockerdb && echo "OK: db"
-	@echo "All tests passed"
+	@echo ""
+	@echo "Running PHPUnit tests..."
+	@composer test -- --no-colors || true
+
+test:unit:
+	@composer test:unit -- --no-colors
+
+test:integration:
+	@composer test:integration -- --no-colors
 
 test-backup:
 	@bash backup/test_backup.sh

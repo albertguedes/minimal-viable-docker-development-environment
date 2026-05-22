@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![GitHub last commit](https://img.shields.io/github/last-commit/albertguedes/minimal-viable-docker-development-environment)](https://github.com/albertguedes/minimal-viable-docker-development-environment)
+[![CI/CD](https://github.com/albertguedes/minimal-viable-docker-development-environment/actions/workflows/ci.yml/badge.svg)](https://github.com/albertguedes/minimal-viable-docker-development-environment/actions/workflows/ci.yml)
 
 A production-ready, lightweight Docker development environment for teams requiring a consistent PHP + PostgreSQL stack. Built on Alpine Linux images for minimal footprint and fast deployments.
 
@@ -16,6 +17,7 @@ A production-ready, lightweight Docker development environment for teams requiri
 | **Environment Isolation** | All credentials managed via environment variables, never in code |
 | **Self-Documenting** | Clear service boundaries, dependency management, and architecture docs |
 | **Enterprise Secure** | Ports bound to localhost, custom networks, no hardcoded secrets |
+| **CI/CD Ready** | GitHub Actions workflows for testing, scanning, and release |
 
 ---
 
@@ -23,19 +25,19 @@ A production-ready, lightweight Docker development environment for teams requiri
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    HOST MACHINE                        │
-│                  (127.0.0.1:8080)                       │
+│                    HOST MACHINE                          │
+│                  (127.0.0.1:8080)                        │
 └─────────────────────────┬───────────────────────────────┘
                           │
          ┌────────────────┴────────────────┐
          │                                 │
          ▼                                 ▼
 ┌─────────────────────┐         ┌─────────────────────┐
-│  nginx-container    │         │   php-fpm-container │
-│  (nginx:1.27-alpine)│────────▶│  (php:8.4-fpm)     │
-│                     │         │                    │
+│  nginx-container     │         │   php-fpm-container │
+│  (nginx:1.27-alpine) │────────▶│  (php:8.4-fpm)     │
+│                      │         │                    │
 │  Port: 80           │         │  Port: 9000        │
-│  /usr/share/nginx/  │         │  /var/www/html     │
+│  /usr/share/nginx/   │         │  /var/www/html     │
 └─────────────────────┘         └─────────┬───────────┘
                                           │
                                           ▼
@@ -43,8 +45,8 @@ A production-ready, lightweight Docker development environment for teams requiri
                               │ postgresql-container │
                               │  (postgres:17)      │
                               │                    │
-                              │  Port: 5432         │
-                              │  Volume: postgres-   │
+                              │  Port: 5432        │
+                              │  Volume: postgres-  │
                               │    data             │
                               └─────────────────────┘
 ```
@@ -66,6 +68,7 @@ A production-ready, lightweight Docker development environment for teams requiri
 - Docker Engine 20.10+
 - Docker Compose 2.0+
 - GNU Make 3.81+
+- Composer 2.0+ (for running tests)
 
 ### Installation
 
@@ -78,11 +81,14 @@ cd minimal-viable-docker-development-environment
 cp .env.example .env
 # Edit .env with your preferred credentials
 
-# 3. Build and start services
+# 3. Install PHP dependencies
+composer install
+
+# 4. Build and start services
 make build && make up
 
-# 4. Verify services
-curl http://localhost:8080/
+# 5. Verify services
+make test
 ```
 
 ### Verify Your Setup
@@ -96,6 +102,12 @@ curl http://localhost:8080/index.php
 
 # Test database connection
 curl http://localhost:8080/database.php
+
+# Run unit tests
+make test:unit
+
+# Run integration tests
+make test:integration
 
 # View running containers
 make logs
@@ -117,6 +129,38 @@ make shell service=php
 | `make shell service=<db\|php\|webserver>` | Exec into container shell |
 | `make clean` | Remove containers, volumes, and images |
 | `make status` | Show running containers status |
+| `make test` | Run all tests (curl + PHPUnit) |
+| `make test:unit` | Run unit tests only |
+| `make test:integration` | Run integration tests only |
+| `make backup` | Backup database |
+| `make restore file=<backup>` | Restore database from backup |
+
+---
+
+## Testing
+
+### PHPUnit Tests
+
+```bash
+# Install dependencies
+composer install
+
+# Run all tests
+composer test
+
+# Run unit tests only
+composer test:unit
+
+# Run integration tests only
+composer test:integration
+```
+
+### Test Suites
+
+| Suite | Purpose | Location |
+|------|---------|----------|
+| **Unit** | PHP logic tests | `tests/Unit/` |
+| **Integration** | HTTP endpoints + DB tests | `tests/Integration/` |
 
 ---
 
@@ -145,21 +189,71 @@ POSTGRES_PASSWORD=your_secure_password
 .
 ├── src/                    # Application source code
 │   ├── index.html         # Static HTML page
-│   ├── index.php         # PHP info page
-│   └── database.php      # Database connection test
-├── database/              # Database service
+│   ├── index.php          # PHP info page
+│   ├── database.php       # Database connection test
+│   ├── health.php         # Health check endpoint
+│   └── metrics.php        # JSON metrics endpoint
+├── tests/                  # PHPUnit test suite
+│   ├── bootstrap.php
+│   ├── Unit/
+│   └── Integration/
+├── database/               # Database service
 │   └── postgresql.dockerfile
-├── php/                   # PHP service
+├── php/                    # PHP service
 │   └── php.dockerfile
-├── webserver/             # Web server service
+├── webserver/              # Web server service
 │   ├── nginx.dockerfile
 │   └── nginx/
-│       └── default.conf  # Nginx configuration
-├── compose.yaml          # Service definitions
-├── Makefile              # Developer commands
-├── CHANGELOG.md          # Version history
-└── TODO.md               # Planned improvements
+│       ├── default.conf   # Nginx configuration
+│       └── nginx.conf     # Main config
+├── backup/                 # Backup scripts
+│   ├── backup.sh           # Backup with encryption/sync
+│   ├── restore.sh          # Restore script
+│   ├── verify-restore.sh   # Backup verification
+│   └── config.sh          # Backup configuration
+├── .github/
+│   └── workflows/
+│       ├── ci.yml         # CI pipeline (lint, test, scan, build)
+│       └── cd.yml         # CD pipeline (tagged releases)
+├── compose.yaml           # Service definitions
+├── Makefile               # Developer commands
+├── phpunit.xml.dist       # PHPUnit configuration
+├── composer.json          # PHP dependencies
+└── docs/                  # Documentation
+    ├── ARCHITECTURE.md
+    ├── CHANGELOG.md
+    ├── USER_MANUAL.md
+    └── TODO.md
 ```
+
+---
+
+## CI/CD
+
+### GitHub Actions Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **CI** | push to master, PR | Lint → Test (PHP 8.2/8.3/8.4) → Trivy scan → Build |
+| **CD** | annotated tag `v*` | Build + push tagged images to registry |
+
+### Secrets Required
+
+Configure in GitHub repository settings:
+
+| Secret | Description |
+|--------|-------------|
+| `DOCKER_REGISTRY_USERNAME` | Docker Hub username |
+| `DOCKER_REGISTRY_TOKEN` | Docker Hub access token |
+
+### Registry Configuration
+
+Set in repository variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DOCKER_REGISTRY` | docker.io | Docker registry URL |
+| `DOCKER_IMAGE_NAME` | github.repository | Full image path |
 
 ---
 
@@ -186,7 +280,7 @@ make logs service=db
 
 # Manually test connection inside PHP container
 make shell service=php
-pg_isready -h postgresql-container -U docker
+pg_isready -h db -U docker
 ```
 
 ### Port already in use
@@ -200,6 +294,44 @@ netstat -tulpn | grep 8080
 
 ---
 
+## Backup & Restore
+
+### Configuration
+
+Edit `backup/config.local.sh` to configure your backup destination:
+
+```bash
+# Choose provider: local, s3, b2, rsync
+BACKUP_PROVIDER=local
+
+# Optional GPG encryption
+# GPG_RECIPIENT="your@email.com"
+
+# S3 Configuration (if BACKUP_PROVIDER=s3)
+# S3_BUCKET="your-bucket"
+# S3_REGION="us-east-1"
+
+# Backblaze B2 (if BACKUP_PROVIDER=b2)
+# B2_ACCOUNT_ID=""
+# B2_APPLICATION_KEY=""
+# B2_BUCKET=""
+```
+
+### Commands
+
+```bash
+# Backup database (local)
+make backup
+
+# Verify backup integrity
+bash backup/verify-restore.sh
+
+# Restore from backup
+make restore file=backup/postgresql_20260522_120000.sql.gz
+```
+
+---
+
 ## Security Notes
 
 - Ports are bound to `127.0.0.1` (localhost only) by default
@@ -207,6 +339,8 @@ netstat -tulpn | grep 8080
 - No secrets committed to version control
 - Custom Docker network for service isolation
 - Named volumes for persistent data encryption at rest
+- CI/CD includes Trivy vulnerability scanning
+- Backups can be encrypted with GPG
 
 **For production deployments**, consider:
 - Implementing Docker Secrets
@@ -219,7 +353,7 @@ netstat -tulpn | grep 8080
 
 ## Contributing
 
-Contributions are welcome. Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+Contributions are welcome. Please see [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for guidelines.
 
 ---
 

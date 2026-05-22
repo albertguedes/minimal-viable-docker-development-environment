@@ -7,6 +7,14 @@ database/data/
 
 # Backups
 backup/*.sql.gz
+backup/*.gpg
+backup/config.local.sh
+backup/rsync_key*
+
+# Composer
+/vendor/
+composer.lock
+.phpunit.cache/
 
 # Agent
 AGENT.md

@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.9.0] - 2026-05-22
+
+### Added
+- **PHPUnit Testing**: Full test suite with Unit and Integration tests
+  - `phpunit.xml.dist` - PHPUnit configuration
+  - `tests/bootstrap.php` - Test bootstrap
+  - `tests/Unit/ExampleTest.php` - Basic unit tests
+  - `tests/Integration/HealthCheckTest.php` - HTTP endpoint tests
+  - `tests/Integration/DatabaseTest.php` - PostgreSQL connection tests
+- **GitHub Actions CI/CD**:
+  - `.github/workflows/ci.yml` - Lint, test (PHP 8.2/8.3/8.4), Trivy scan, Docker build
+  - `.github/workflows/cd.yml` - Tagged release workflow
+- **Composer Support**: `composer.json` with PHPUnit 11.x
+- **Enhanced Backup**:
+  - `backup/config.sh` - Configurable backup providers (local, S3, B2, rsync)
+  - `backup/backup.sh` - GPG encryption + off-site sync support
+  - `backup/verify-restore.sh` - Automated backup integrity verification
+
+### Changed
+- Makefile: Added `test:unit` and `test:integration` targets
+- Makefile: Updated `make test` to run both curl tests and PHPUnit
+- Makefile: Fixed `make shell` container names to use `mv-*` prefix
+- Updated README with CI/CD badges, testing section, and backup documentation
+
+### Security
+- CI pipeline includes Trivy vulnerability scanning
+- Backup encryption with GPG (optional, configurable)
+- All secrets gitignored, no hardcoded credentials
+
 ## [v0.8.4] - 2026-05-22
 
 ### Fixed
