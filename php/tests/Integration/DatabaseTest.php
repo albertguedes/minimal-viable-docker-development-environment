@@ -23,7 +23,7 @@ final class DatabaseTest extends TestCase
     protected function setUp(): void
     {
         $this->host = getenv('POSTGRES_HOST') ?: 'localhost';
-        $this->port = getenv('POSTGRES_PORT') ?: '2345';
+        $this->port = getenv('POSTGRES_PORT') ?: '5432';
         $this->dbname = getenv('POSTGRES_DB') ?: 'dockerdb';
         $this->user = getenv('POSTGRES_USER') ?: 'docker';
         $this->password = getenv('POSTGRES_PASSWORD') ?: 'docker';

@@ -6,7 +6,7 @@
 set -e
 
 BACKUP_FILE="$1"
-CONTAINER="${POSTGRES_CONTAINER:-postgresql-container}"
+CONTAINER="${POSTGRES_CONTAINER:-mv-postgresql-container}"
 DB_NAME="${POSTGRES_DB:-dockerdb}"
 DB_USER="${POSTGRES_USER:-docker}"
 BACKUP_DIR="$(dirname "$0")"

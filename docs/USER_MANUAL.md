@@ -20,11 +20,11 @@ curl http://localhost:8080/
 
 ## Services
 
-| Service | Port | Description |
-|---------|------|-------------|
+| Service | Port (host) | Description |
+|---------|-------------|-------------|
 | nginx | 8080 | HTTP server |
-| php-fpm | 9090 | PHP FastCGI (debug) |
-| postgresql | 2345 | Database |
+| php-fpm | 9000 | PHP FastCGI (host network) |
+| postgresql | 5432 | Database (host network) |
 
 ## Common Commands
 
@@ -60,8 +60,8 @@ cat .env
 
 **Database connection fails:**
 ```bash
+pg_isready -h 127.0.0.1 -p 5432 -U docker -d dockerdb
 make shell service=php
-pg_isready -h postgresql-container -U docker
 ```
 
 **Port already in use:**

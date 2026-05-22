@@ -19,10 +19,8 @@ services:
         image: postgresql-image
         container_name: mv-postgresql-container
 
+        # Host network: PostgreSQL listens on 127.0.0.1:5432 (ports: ignored)
         network_mode: host
-
-        ports:
-            - "127.0.0.1:5432:5432"
 
         env_file:
             - .env
@@ -69,10 +67,8 @@ services:
         image: nginx-image
         container_name: mv-nginx-container
 
+        # Host network: nginx listens on 127.0.0.1:8080 (ports: ignored)
         network_mode: host
-
-        ports:
-            - "127.0.0.1:8080:80"
 
         volumes:
             - ./src:/var/www/html:ro

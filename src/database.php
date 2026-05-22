@@ -11,7 +11,7 @@ declare(strict_types=1);
  * Distributed under the MIT License. See LICENSE for more information.
  */
 
-$host     = getenv('POSTGRES_HOST') ?: 'postgresql-container';
+$host     = getenv('POSTGRES_HOST') ?: '127.0.0.1';
 $port     = getenv('POSTGRES_PORT') ?: '5432';
 $dbname   = getenv('POSTGRES_DB') ?: 'dockerdb';
 $user     = getenv('POSTGRES_USER') ?: 'docker';

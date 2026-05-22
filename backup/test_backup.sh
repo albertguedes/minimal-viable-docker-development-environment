@@ -4,9 +4,9 @@
 #
 set -e
 
-SCRIPT_DIR="/home/albert/Development/DOCKER/minimal_viable/backup"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$SCRIPT_DIR"
-CONTAINER="${POSTGRES_CONTAINER:-postgresql-container}"
+CONTAINER="${POSTGRES_CONTAINER:-mv-postgresql-container}"
 DB_NAME="${POSTGRES_DB:-dockerdb}"
 DB_USER="${POSTGRES_USER:-docker}"
 

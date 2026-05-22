@@ -1,12 +1,14 @@
 # Architecture
 
-Detailed technical documentation of the Minimal Viable Docker Development Environment.
+Technical documentation for the Minimal Viable Docker Development Environment (v0.10.1).
 
 ---
 
 ## Overview
 
-This project provides a containerized development environment consisting of three services: an HTTP server (nginx), a PHP processor (php-fpm), and a database (PostgreSQL). The architecture follows the standard web application pattern where nginx acts as a reverse proxy, forwarding PHP requests to the PHP-FPM processor via FastCGI.
+Three services run on the host network: **nginx** (HTTP), **PHP-FPM** (application runtime), and **PostgreSQL** (data). Nginx serves static files and forwards `*.php` requests to PHP-FPM via FastCGI on `127.0.0.1:9000`. PHP connects to PostgreSQL on `127.0.0.1:5432`.
+
+Only **Docker** and **Make** are required on the host; Composer and PHPUnit run inside the PHP image.
 
 ---
 
@@ -15,27 +17,21 @@ This project provides a containerized development environment consisting of thre
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         HOST MACHINE                            │
-│                      (macOS / Linux / Windows)                  │
 │                                                                 │
-│   127.0.0.1:8080 ─────── nginx webserver                        │
-│   127.0.0.1:9090 ─────── php-fpm (debug port)                   │
-│   127.0.0.1:2345 ─────── postgresql (direct access)             │
+│   127.0.0.1:8080  ── nginx (mv-nginx-container)                 │
+│                         │ fastcgi_pass 127.0.0.1:9000           │
+│                         ▼                                       │
+│   127.0.0.1:9000  ── PHP-FPM (mv-php-fpm-container)            │
+│                         │ pg_connect 127.0.0.1:5432             │
+│                         ▼                                       │
+│   127.0.0.1:5432  ── PostgreSQL (mv-postgresql-container)       │
 │                                                                 │
-│   ┌──────────────────────────────────────────────────────────┐  │
-│   │              Docker Network (mv-network)                 │  │
-│   │                                                          │  │
-│   │   ┌──────────────┐     ┌──────────────┐    ┌───────────┐ │  │
-│   │   │    nginx     │───▶│  php-fpm     │──▶ │postgres   │ │  │
-│   │   │  mv-nginx    │     │ mv-php-fpm  │    │ mv-pg     │ │  │
-│   │   │  container   │     │  container   │    │ container │ │  │
-│   │   └──────────────┘     └──────────────┘    └───────────┘ │  │
-│   │                                                          │  │
-│   └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│   ./src ──────────────────────────▶ /var/www/html (volume)     │
-│   ./database/data (bind mount) ────▶ /var/lib/postgresql/data  │
+│   ./src ──────────────────────▶ /var/www/html (php + nginx)   │
+│   ./database/data ────────────▶ /var/lib/postgresql/data        │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+All services use **`network_mode: host`**. Compose `ports:` mappings are not used (Docker ignores them in host mode). Services bind directly on the host loopback.
 
 ---
 
@@ -47,49 +43,49 @@ This project provides a containerized development environment consisting of thre
 |----------|-------|
 | Image | nginx:1.27-alpine |
 | Container | mv-nginx-container |
-| Host Port | 8080 |
-| Container Port | 80 |
-| Configuration | webserver/nginx/default.conf |
-| Health Check | HTTP GET / |
+| Listen | `127.0.0.1:8080` (configured in `webserver/nginx/default.conf`) |
+| Config | `webserver/nginx/default.conf`, `nginx.conf` |
+| Dockerfile | `webserver/Dockerfile` |
 
 **Responsibilities:**
-- Serve static files (HTML, CSS, JavaScript)
-- Proxy PHP requests to php-fpm container via FastCGI
-- Load balancing (future: multiple php-fpm instances)
-- SSL/TLS termination (future)
 
-**Request Flow:**
+- Serve static files from `/var/www/html` (volume: `./src`, read-only)
+- Proxy PHP to `127.0.0.1:9000` via FastCGI
+- Inline `/health` response (no PHP)
+
+**Request flow:**
+
 ```
-Client → nginx:80 → location ~ \.php$ → fastcgi_pass php-fpm:9000
-                                          ↓
-                              PHP processor → returns result
+Client → :8080 → location ~ \.php$ → fastcgi_pass 127.0.0.1:9000 → PHP-FPM
 ```
 
 ### 2. PHP Processor (php-fpm)
 
 | Property | Value |
 |----------|-------|
-| Image | php:8.4-fpm-alpine |
+| Image | php:8.4-fpm-alpine (8.2/8.3 via build arg) |
 | Container | mv-php-fpm-container |
-| Host Port | 9090 |
-| Container Port | 9000 |
-| Volume Mount | ./src → /var/www/html |
-| Extensions | pgsql, pdo, pdo_pgsql |
+| Listen | `127.0.0.1:9000` (FastCGI) |
+| Dockerfile | `php/Dockerfile` (build context: repository root) |
+| User | www-data |
+| Extensions | pdo, pdo_pgsql, pgsql |
+| Tools | Composer, PHPUnit 11 (phar) |
 
-**Responsibilities:**
-- Parse and execute PHP code
-- Connect to PostgreSQL database
-- Session management
-- File operations in /var/www/html
+**Volumes:**
 
-**Environment Variables:**
-| Variable | Source | Description |
-|----------|--------|-------------|
-| POSTGRES_HOST | .env | Database hostname |
-| POSTGRES_PORT | .env | Database port |
-| POSTGRES_DB | .env | Database name |
-| POSTGRES_USER | .env | Database user |
-| POSTGRES_PASSWORD | .env | Database password |
+- `./src` → `/var/www/html`
+- `./php/phpunit.xml.dist` → `/var/www/phpunit.xml.dist` (ro)
+- `./php/tests` → `/var/www/tests` (ro)
+
+**Environment (compose + `.env`):**
+
+| Variable | Default in compose | Description |
+|----------|-------------------|-------------|
+| POSTGRES_HOST | `127.0.0.1` | Database host |
+| POSTGRES_PORT | `5432` | Database port |
+| POSTGRES_DB | from `.env` | Database name |
+| POSTGRES_USER | from `.env` | Database user |
+| POSTGRES_PASSWORD | from `.env` | Database password |
 
 ### 3. Database (PostgreSQL)
 
@@ -97,187 +93,107 @@ Client → nginx:80 → location ~ \.php$ → fastcgi_pass php-fpm:9000
 |----------|-------|
 | Image | postgres:17-alpine |
 | Container | mv-postgresql-container |
-| Host Port | 2345 |
-| Container Port | 5432 |
-| Volume Mount | `./database/data` → `/var/lib/postgresql/data` |
-| Health Check | pg_isready |
+| Listen | `127.0.0.1:5432` |
+| Dockerfile | `database/Dockerfile` |
+| Data | `./database/data` → `/var/lib/postgresql/data` |
 
-**Responsibilities:**
-- Store application data
-- User authentication
-- Data persistence across container restarts
-- SQL query processing
-
-**Default Configuration:**
-- Database: dockerdb
-- User: docker
-- Password: (from POSTGRES_PASSWORD in .env)
+**Defaults:** database `dockerdb`, user `docker`, password from `.env`.
 
 ---
 
 ## Network Architecture
 
-### Custom Bridge Network
+### Host networking
 
 ```yaml
-networks:
-  mv-network:
-    driver: bridge
+network_mode: host
 ```
 
-Services communicate via DNS names matching container names:
-- `mv-postgresql-container` (db service)
-- `mv-php-fpm-container` (php service)
-- `mv-nginx-container` (webserver service)
+Inter-service traffic uses **loopback**:
 
-### Port Bindings
+| From | To | Address |
+|------|-----|---------|
+| Browser | nginx | `http://127.0.0.1:8080` |
+| nginx | PHP-FPM | `127.0.0.1:9000` |
+| PHP | PostgreSQL | `127.0.0.1:5432` |
+| Host tools | PostgreSQL | `pg_isready -h 127.0.0.1 -p 5432` |
 
-| Service | Host Binding | Container Port | Purpose |
-|---------|--------------|----------------|---------|
-| webserver | 127.0.0.1:8080 | 80 | HTTP traffic |
-| php | 127.0.0.1:9090 | 9000 | PHP-FPM debug |
-| db | 127.0.0.1:2345 | 5432 | Direct DB access |
+`depends_on` orders container start but does **not** wait for PostgreSQL readiness; use `make test` or `pg_isready` manually.
 
 ---
 
 ## Data Flow
 
-### 1. Static Content Request
+### Static content
 
 ```
-Browser → http://localhost:8080/index.html
-        ↓
-nginx container (port 80)
-        ↓ (location /)
-Checks /usr/share/nginx/html
-        ↓
-Returns index.html
+Browser → http://127.0.0.1:8080/index.html
+       → nginx → /var/www/html/index.html
 ```
 
-### 2. PHP Dynamic Content Request
+### PHP
 
 ```
-Browser → http://localhost:8080/index.php
-        ↓
-nginx container (port 80)
-        ↓ (location ~ \.php$)
-fastcgi_pass php:9000
-        ↓
-fastcgi_param SCRIPT_FILENAME /var/www/html/index.php
-        ↓
-php-fpm container (port 9000)
-        ↓
-PHP processor reads index.php
-        ↓
-Executes PHP code
-        ↓
-Returns HTML output
+Browser → http://127.0.0.1:8080/index.php
+       → nginx → FastCGI 127.0.0.1:9000
+       → PHP-FPM executes /var/www/html/index.php
 ```
 
-### 3. Database Query Request
+### Database (via PHP)
 
 ```
-Browser → http://localhost:8080/database.php
-        ↓ (via php-fpm)
-PHP executes pg_connect()
-        ↓
-host=mv-postgresql-container port=5432
-        ↓
-PostgreSQL processes query
-        ↓
-Returns result to PHP
-        ↓
-PHP returns HTML
+Browser → http://127.0.0.1:8080/database.php
+       → PHP pg_connect(host=127.0.0.1 port=5432 ...)
+       → PostgreSQL
 ```
 
 ---
 
-## Volume Management
+## Operational Checks
 
-### Application Volume
-
-```yaml
-volumes:
-  - ./src:/var/www/html
-```
-
-Source code in `./src` on host is mounted to `/var/www/html` in php-fpm container. Changes to source files are immediately reflected without rebuilding.
-
-### Database Volume
-
-```yaml
-volumes:
-  - ./database/data:/var/lib/postgresql/data
-```
-
-Bind mount `./database/data` persists PostgreSQL data files on the host.
-
----
-
-## Health Checks
-
-| Service | Check Method | Interval | Timeout | Retries |
-|---------|--------------|----------|---------|---------|
-| db | pg_isready | 10s | 5s | 5 |
-| php | pg_isready (via network) | 10s | 5s | 3 |
-| webserver | curl -f | 10s | 5s | 3 |
-
-Services with `depends_on` wait for health checks via `condition: service_healthy`.
+| Check | Command |
+|-------|---------|
+| HTTP | `curl -sf http://127.0.0.1:8080/health` |
+| DB ready | `pg_isready -h 127.0.0.1 -p 5432 -U docker -d dockerdb` |
+| Full suite | `make test` |
 
 ---
 
 ## Security Architecture
 
-### Network Isolation
+- Credentials in `.env` (gitignored), passed via `env_file`
+- Services listen on host loopback (not exposed on all interfaces by default)
+- PHP image runs as `www-data`
+- nginx mounts `src` read-only
+- CI: Hadolint on Dockerfiles, Trivy filesystem scan
 
-- Custom bridge network `app-network` isolates services
-- Only exposed ports bound to `127.0.0.1` (localhost)
-- No direct inter-container access from host
-
-### Secrets Management
-
-- Database credentials in `.env` file (gitignored)
-- Environment variables passed via `env_file`
-- No credentials in Dockerfiles or source code
-
-### Container Security
-
-- Alpine-based images (minimal attack surface)
-- No running services as root (future improvement)
-- Read-only root filesystems (planned)
+**Production hardening (not included):** TLS termination, Docker Secrets, compose healthchecks, non-host networking.
 
 ---
 
 ## Build Context
 
-Each service has its own build context:
-
 | Service | Context | Dockerfile |
 |---------|---------|------------|
-| database | ./database/ | postgresql.dockerfile |
-| php | ./php/ | php.dockerfile |
-| webserver | ./webserver/ | nginx.dockerfile |
+| database | `./database/` | `Dockerfile` |
+| php | `.` (repo root) | `php/Dockerfile` |
+| webserver | `./webserver/` | `Dockerfile` |
 
-This separation allows independent rebuilding and reduces build context size.
+The PHP image must build from the repository root because the Dockerfile copies `src/` and `php/tests/`.
 
 ---
 
-## Future Architecture Considerations
+## CI/CD
 
-### Horizontal Scaling
+| Workflow | Trigger | Notes |
+|----------|---------|-------|
+| `ci.yml` | push/PR to `master` | PHP 8.2–8.4 matrix, compose test, Hadolint, Trivy, GHCR build |
+| `cd.yml` | tag `v*` | Release images to GHCR; PHP build uses same context as CI |
 
-- Add load balancer (nginx upstream) for multiple php-fpm instances
-- Configure shared session storage (Redis)
-- Implement read replicas for PostgreSQL
+---
 
-### High Availability
+## Future Considerations
 
-- Container restart policies for auto-recovery
-- Health check guided service restart
-- Database replication setup
-
-### Monitoring
-
-- Prometheus metrics exporter sidecar
-- Structured logging to ELK stack
-- Distributed tracing (Jaeger)
+- Bridge network + explicit port publishing for multi-project hosts
+- Compose healthchecks with `depends_on: condition: service_healthy`
+- TLS reverse proxy, Redis sessions, read replicas

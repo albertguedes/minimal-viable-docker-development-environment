@@ -36,20 +36,19 @@ A production-ready, lightweight Docker development environment for teams requiri
          │                                 │
          ▼                                 ▼
 ┌─────────────────────┐         ┌─────────────────────┐
-│  nginx-container   │         │   php-fpm-container │
+│  mv-nginx-container │         │ mv-php-fpm-container│
 │  (nginx:1.27-alpine)│         │  (php:8.4-fpm)      │
 │                     │────────▶│                     │
-│  Port: 8080        │         │  Port: 9000         │
-│  /usr/share/nginx/  │         │  /var/www/html      │
+│  :8080 (HTTP)       │         │  :9000 (FastCGI)    │
+│  /var/www/html      │         │  /var/www/html      │
 └─────────────────────┘         └─────────┬───────────┘
                                           │
                                           ▼
                               ┌─────────────────────┐
-                              │ postgresql-container │
+                              │mv-postgresql-container│
                               │  (postgres:17)      │
-                              │                     │
-                              │  Port: 5432        │
-                              │  Volume: ./data     │
+                              │  :5432              │
+                              │  ./database/data    │
                               └─────────────────────┘
 ```
 
@@ -195,16 +194,16 @@ POSTGRES_PASSWORD=your_secure_password
 │   ├── health.php         # Health check endpoint
 │   └── metrics.php        # JSON metrics endpoint
 ├── php/                    # PHP service
-│   ├── php.dockerfile     # Multi-version PHP (8.2/8.3/8.4)
+│   ├── Dockerfile         # Multi-version PHP (8.2/8.3/8.4)
 │   ├── phpunit.xml.dist   # PHPUnit configuration
 │   └── tests/             # Test suite (volume-mounted)
 │       ├── bootstrap.php
 │       ├── Unit/
 │       └── Integration/
 ├── database/               # Database service
-│   └── postgresql.dockerfile
+│   └── Dockerfile
 ├── webserver/              # Web server service
-│   ├── nginx.dockerfile
+│   ├── Dockerfile
 │   └── nginx/
 │       ├── default.conf   # Nginx configuration
 │       └── nginx.conf     # Main config
@@ -243,9 +242,9 @@ Images are published to **GitHub Container Registry (GHCR)**:
 
 ```bash
 # Example: Pull tagged release
-docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/php:v0.10.0
-docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/webserver:v0.10.0
-docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/db:v0.10.0
+docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/php:v0.10.1
+docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/webserver:v0.10.1
+docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/db:v0.10.1
 ```
 
 ---

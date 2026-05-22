@@ -33,10 +33,11 @@ down:
 	$(COMPOSE) down
 
 logs:
-	$(COMPOSE) logs
-
-logs service=$(service):
+ifdef service
 	$(COMPOSE) logs $(service)
+else
+	$(COMPOSE) logs
+endif
 
 shell:
 	@if [ -z "$(service)" ]; then \

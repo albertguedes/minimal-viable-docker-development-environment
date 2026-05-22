@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [v0.10.1] - 2026-05-22
+
+### Fixed
+- CD workflow: invalid YAML indentation on Buildx step
+- CD workflow: PHP image build uses repository root context (matches CI)
+- Backup scripts: default container name `mv-postgresql-container`
+- `backup/test_backup.sh`: portable `SCRIPT_DIR` (no hardcoded path)
+- PHP fallbacks in `database.php` and `metrics.php` use `127.0.0.1`
+- `DatabaseTest` default port `5432` (was `2345`)
+- Makefile: single `logs` target with optional `service=`
+- `compose.yaml`: removed ignored `ports` under host network
+
+### Changed
+- Documentation: `ARCHITECTURE.md`, README, and `USER_MANUAL` aligned with host networking
+
 ## [v0.10.0] - 2026-05-22
 
 ### Changed

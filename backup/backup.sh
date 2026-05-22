@@ -11,7 +11,7 @@ if [ -f "$CONFIG_FILE" ]; then
     source "$CONFIG_FILE"
 fi
 
-CONTAINER="${POSTGRES_CONTAINER:-postgresql-container}"
+CONTAINER="${POSTGRES_CONTAINER:-mv-postgresql-container}"
 BACKUP_DIR="$SCRIPT_DIR"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 DB_NAME="${POSTGRES_DB:-dockerdb}"
