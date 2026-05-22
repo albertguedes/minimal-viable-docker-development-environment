@@ -101,10 +101,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Lint Dockerfile
-        uses: docker://hadolint/hadolint:v2.12.0-alpine
-        with:
-          args: database/Dockerfile php/Dockerfile webserver/Dockerfile
+      - name: Install Hadolint
+        run: |
+          sudo apt-get update && sudo apt-get install -y hadolint
+
+      - name: Lint Dockerfiles
+        run: |
+          hadolint database/Dockerfile
+          hadolint php/Dockerfile
+          hadolint webserver/Dockerfile
 
   trivy:
     name: Vulnerability Scan
