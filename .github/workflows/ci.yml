@@ -72,6 +72,16 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Create .env file
+        run: |
+          cat > .env << 'EOF'
+          POSTGRES_DB=dockerdb
+          POSTGRES_USER=docker
+          POSTGRES_PASSWORD=docker
+          POSTGRES_HOST=db
+          POSTGRES_PORT=5432
+          EOF
+
       - name: Start Docker Compose stack
         run: docker compose up -d
 
