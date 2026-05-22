@@ -23,6 +23,12 @@ if [ ! -f "$BACKUP_FILE" ]; then
     exit 1
 fi
 
+BACKUP_FILE_ABS="$(realpath "$BACKUP_FILE")"
+if [[ "$BACKUP_FILE_ABS" != *"/backup/"* ]] && [[ "$BACKUP_FILE_ABS" != */backup ]]; then
+    echo "ERROR: Backup file must be within a /backup subdirectory"
+    exit 1
+fi
+
 echo "[$(date)] Creating safety backup before restore..."
 docker exec "$CONTAINER" pg_dump -h localhost -U "$DB_USER" -d "$DB_NAME" | gzip > "$SAFETY_BACKUP"
 echo "[$(date)] Safety backup created: $SAFETY_BACKUP"
