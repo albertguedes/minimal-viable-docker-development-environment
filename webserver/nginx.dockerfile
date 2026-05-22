@@ -9,5 +9,3 @@ RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx &
 
 COPY --chown=nginx:nginx ./nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --chown=nginx:nginx ./nginx/default.conf /etc/nginx/conf.d/default.conf
-
-USER nginx
