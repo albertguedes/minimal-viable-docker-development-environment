@@ -68,7 +68,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_pgsql
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_pgsql, pgsql
           tools: composer:v2
           coverage: none
 
@@ -102,12 +102,12 @@ jobs:
           done
 
       - name: Run Unit tests
-        run: composer test:unit -- --no-colors
+        run: composer test:unit
 
       - name: Run Integration tests
-        run: composer test:integration -- --no-colors
+        run: composer test:integration
         env:
-          POSTGRES_HOST: postgres
+          POSTGRES_HOST: db
           POSTGRES_PORT: 5432
           POSTGRES_DB: dockerdb
           POSTGRES_USER: docker
