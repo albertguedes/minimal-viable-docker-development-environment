@@ -24,7 +24,7 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="POSTGRES_HOST" value="postgres"/>
+        <env name="POSTGRES_HOST" value="db"/>
         <env name="POSTGRES_PORT" value="5432"/>
         <env name="POSTGRES_DB" value="dockerdb"/>
         <env name="POSTGRES_USER" value="docker"/>

@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell clean test test-backup backup restore crontab test:unit test:integration
+.PHONY: help build up down logs shell clean test test-backup backup restore crontab test-unit test-integration
 
 DOCKER := docker
 COMPOSE := $(DOCKER) compose
@@ -16,8 +16,8 @@ help:
 	@echo "  make shell          Shell into container (service=php|db|webserver)"
 	@echo "  make clean          Remove containers and volumes"
 	@echo "  make test           Run all tests (curl + phpunit)"
-	@echo "  make test:unit      Run unit tests only"
-	@echo "  make test:integration  Run integration tests only"
+	@echo "  make test-unit       Run unit tests only"
+	@echo "  make test-integration  Run integration tests only"
 	@echo "  make test-backup    Run backup script tests"
 	@echo "  make backup         Backup database"
 	@echo "  make restore        Restore database (file=<backup>)"
@@ -67,13 +67,13 @@ test:
 	@$(DOCKER) exec mv-postgresql-container pg_isready -U docker -d dockerdb && echo "OK: db"
 	@echo ""
 	@echo "Running PHPUnit tests..."
-	@composer test -- --no-colors || true
+	@composer test
 
-test:unit:
-	@composer test:unit -- --no-colors
+test-unit:
+	@composer test:unit
 
-test:integration:
-	@composer test:integration -- --no-colors
+test-integration:
+	@composer test:integration
 
 test-backup:
 	@bash backup/test_backup.sh
