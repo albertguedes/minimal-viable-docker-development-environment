@@ -85,19 +85,17 @@ jobs:
       - name: Start Docker Compose stack
         run: docker compose up -d
 
-      - name: Wait for services to start
+      - name: Wait for PostgreSQL to be ready
         run: |
+          echo "Waiting for PostgreSQL to be ready..."
           for i in {1..30}; do
-            if docker compose ps --format json | grep -q '"State":"running"'; then
-              echo "Services are running"
+            if docker compose exec -T db pg_isready -U docker -d dockerdb > /dev/null 2>&1; then
+              echo "PostgreSQL is ready"
               break
             fi
-            echo "Waiting for services... ($i/30)"
+            echo "Waiting for PostgreSQL... ($i/30)"
             sleep 2
           done
-
-          echo "Waiting for PostgreSQL to be ready..."
-          sleep 30
 
       - name: Run Unit tests
         run: composer test:unit
