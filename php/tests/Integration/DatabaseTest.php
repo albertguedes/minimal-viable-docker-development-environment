@@ -31,8 +31,8 @@ final class DatabaseTest extends TestCase
 
     protected function assertPostgresConnection(): void
     {
-        if ($this->host === 'localhost' || $this->host === '127.0.0.1' || $this->host === '') {
-            $this->markTestSkipped('Database tests require Docker network (cannot connect to localhost)');
+        if ($this->host === '' || $this->host === 'localhost') {
+            $this->markTestSkipped('Database tests require POSTGRES_HOST environment variable');
         }
 
         $dsn = sprintf(
@@ -45,7 +45,7 @@ final class DatabaseTest extends TestCase
         );
         $conn = @pg_connect($dsn);
         if ($conn === false) {
-            $this->markTestSkipped('Database tests require Docker network (cannot resolve host: ' . $this->host . ')');
+            $this->markTestSkipped('Database connection failed to host: ' . $this->host);
         }
         pg_close($conn);
     }
@@ -130,7 +130,7 @@ final class DatabaseTest extends TestCase
         $conn = pg_connect($dsn);
         $this->assertNotFalse($conn);
 
-        $result = pg_query($conn, "SELECT pg_database_size($1)");
+        $result = pg_query($conn, "SELECT pg_database_size('dockerdb')");
         $this->assertNotFalse($result);
 
         $size = pg_fetch_result($result, 0, 0);
