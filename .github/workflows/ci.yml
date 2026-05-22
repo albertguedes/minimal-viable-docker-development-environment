@@ -89,7 +89,7 @@ jobs:
         run: |
           echo "Waiting for PostgreSQL to be ready..."
           for i in {1..30}; do
-            if docker compose exec -T db pg_isready -U docker -d dockerdb > /dev/null 2>&1; then
+            if pg_isready -h 127.0.0.1 -p 5432 -U docker > /dev/null 2>&1; then
               echo "PostgreSQL is ready"
               break
             fi
@@ -97,24 +97,13 @@ jobs:
             sleep 2
           done
 
-      - name: Debug PostgreSQL connectivity from PHP
-        run: |
-          echo "=== Debug: PostgreSQL connection test ==="
-          docker compose exec -T php php -r "
-          echo 'POSTGRES_HOST=' . getenv('POSTGRES_HOST') . PHP_EOL;
-          \$conn = pg_connect('host=db port=5432 dbname=dockerdb user=docker password=docker');
-          if (\$conn) { echo 'pg_connect: SUCCESS' . PHP_EOL; pg_close(\$conn); }
-          else { echo 'pg_connect: FAILED - ' . pg_last_error() . PHP_EOL; }
-          "
-          echo "=== End debug ==="
-
       - name: Run Unit tests
         run: composer test:unit
 
       - name: Run Integration tests
         run: composer test:integration
         env:
-          POSTGRES_HOST: db
+          POSTGRES_HOST: 127.0.0.1
           POSTGRES_PORT: 5432
           POSTGRES_DB: dockerdb
           POSTGRES_USER: docker

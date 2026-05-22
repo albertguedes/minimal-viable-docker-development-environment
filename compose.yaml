@@ -19,24 +19,16 @@ services:
         image: postgresql-image
         container_name: mv-postgresql-container
 
+        network_mode: host
+
         ports:
-            - "127.0.0.1:2345:5432"
+            - "127.0.0.1:5432:5432"
 
         env_file:
             - .env
 
         volumes:
             - ./database/data:/var/lib/postgresql/data
-
-        networks:
-            - mv-network
-
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-docker} -d ${POSTGRES_DB:-dockerdb}"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-            start_period: 30s
 
         restart: unless-stopped
 
@@ -48,28 +40,20 @@ services:
         image: php-fpm-image
         container_name: mv-php-fpm-container
 
+        network_mode: host
+
         env_file:
             - .env
 
         volumes:
             - ./src:/var/www/html
 
-        networks:
-            - mv-network
-
         environment:
-            - POSTGRES_HOST=db
+            - POSTGRES_HOST=127.0.0.1
             - POSTGRES_PORT=5432
 
         depends_on:
-            db:
-                condition: service_started
-
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -h db -U ${POSTGRES_USER:-docker} -d ${POSTGRES_DB:-dockerdb}"]
-            interval: 10s
-            timeout: 5s
-            retries: 3
+            - db
 
         restart: unless-stopped
 
@@ -81,28 +65,15 @@ services:
         image: nginx-image
         container_name: mv-nginx-container
 
+        network_mode: host
+
         ports:
             - "127.0.0.1:8080:80"
 
         volumes:
             - ./src:/var/www/html:ro
 
-        networks:
-            - mv-network
-
         depends_on:
-            php:
-                condition: service_started
-
-        healthcheck:
-            test: ["CMD-SHELL", "wget -qO- http://localhost:80/ > /dev/null || exit 0"]
-            interval: 10s
-            timeout: 5s
-            retries: 3
-            start_period: 10s
+            - php
 
         restart: unless-stopped
-
-networks:
-    mv-network:
-        driver: bridge
