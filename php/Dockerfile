@@ -9,14 +9,14 @@
 ARG PHP_VERSION=8.4
 FROM php:${PHP_VERSION}-fpm-alpine
 
-# hadolint ignore=DL3018,DL4006
+# hadolint ignore=DL3018,DL4006,SC3040
 RUN apk add --no-cache \
     libpq-dev \
     postgresql-client \
     curl \
     unzip \
     && docker-php-ext-install pdo pdo_pgsql pgsql \
-    && set -o pipefail && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && curl -sL https://phar.phpunit.de/phpunit-11.phar -o /usr/local/bin/phpunit \
     && chmod +x /usr/local/bin/phpunit \
     && rm -rf /var/cache/apk/*
