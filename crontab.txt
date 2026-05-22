@@ -13,3 +13,5 @@
 
 # Check uptime every 5 minutes
 */5 * * * * curl -sf http://localhost:8080/health > /dev/null || echo "DOWN: $(date)" >> /var/log/uptime.log
+
+# Note: Edit the absolute path above to match your installation directory

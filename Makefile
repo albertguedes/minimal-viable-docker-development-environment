@@ -40,7 +40,13 @@ shell:
 		echo "Usage: make shell service=<db|php|webserver>"; \
 		exit 1; \
 	fi
-	$(DOCKER) exec -it $(service)-container /bin/sh
+	@case "$(service)" in \
+		db) container="postgresql-container";; \
+		php) container="php-fpm-container";; \
+		webserver) container="nginx-container";; \
+		*) echo "Invalid service: $(service)"; exit 1;; \
+	esac
+	$(DOCKER) exec -it $$container /bin/sh
 
 clean:
 	$(COMPOSE) down -v

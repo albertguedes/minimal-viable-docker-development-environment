@@ -9,6 +9,9 @@ BACKUP_FILE="$1"
 CONTAINER="${POSTGRES_CONTAINER:-postgresql-container}"
 DB_NAME="${POSTGRES_DB:-dockerdb}"
 DB_USER="${POSTGRES_USER:-docker}"
+BACKUP_DIR="$(dirname "$0")"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+SAFETY_BACKUP="$BACKUP_DIR/postgresql_pre_restore_${TIMESTAMP}.sql.gz"
 
 if [ -z "$BACKUP_FILE" ]; then
     echo "Usage: $0 <backup_file>"
@@ -19,6 +22,10 @@ if [ ! -f "$BACKUP_FILE" ]; then
     echo "File not found: $BACKUP_FILE"
     exit 1
 fi
+
+echo "[$(date)] Creating safety backup before restore..."
+docker exec "$CONTAINER" pg_dump -h localhost -U "$DB_USER" -d "$DB_NAME" | gzip > "$SAFETY_BACKUP"
+echo "[$(date)] Safety backup created: $SAFETY_BACKUP"
 
 echo "[$(date)] Restoring from $BACKUP_FILE..."
 gunzip -c "$BACKUP_FILE" | docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME"

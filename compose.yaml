@@ -49,6 +49,9 @@ services:
         image: php-fpm-image
         container_name: php-fpm-container
 
+        env_file:
+            - .env
+
         volumes:
             - ./src:/var/www/html
 
@@ -67,7 +70,7 @@ services:
                 condition: service_healthy
 
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -h postgresql-container -U ${POSTGRES_USER:-docker}"]
+            test: ["CMD-SHELL", "pg_isready -h postgresql-container -U ${POSTGRES_USER:-docker} -d ${POSTGRES_DB:-dockerdb}"]
             interval: 10s
             timeout: 5s
             retries: 3
@@ -84,6 +87,9 @@ services:
 
         ports:
             - "127.0.0.1:8080:80"
+
+        volumes:
+            - ./src:/var/www/html:ro
 
         networks:
             - app-network

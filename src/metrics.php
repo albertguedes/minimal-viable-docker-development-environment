@@ -23,7 +23,7 @@ $metrics = [
 
 $conn = @pg_connect("host={$host} port={$port} dbname={$dbname} user={$user} password={$password}");
 if ($conn) {
-    $result = pg_query($conn, "SELECT pg_database_size('$dbname') as size, pg_stat_get_db_numbackends('$dbname') as connections");
+    $result = pg_query_params($conn, "SELECT pg_database_size($1) as size, (SELECT COUNT(*) FROM pg_stat_activity WHERE datname = $1) as connections", [$dbname]);
     if ($result) {
         $row = pg_fetch_assoc($result);
         $metrics['database'] = [
