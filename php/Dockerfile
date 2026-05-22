@@ -13,14 +13,12 @@ RUN apk add --no-cache \
     libpq-dev \
     postgresql-client \
     curl \
-    unzip
-
-RUN docker-php-ext-install pdo pdo_pgsql pgsql
-
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-RUN curl -sL https://phar.phpunit.de/phpunit-11.phar -o /usr/local/bin/phpunit \
-    && chmod +x /usr/local/bin/phpunit
+    unzip \
+    && docker-php-ext-install pdo pdo_pgsql pgsql \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && curl -sL https://phar.phpunit.de/phpunit-11.phar -o /usr/local/bin/phpunit \
+    && chmod +x /usr/local/bin/phpunit \
+    && rm -rf /var/cache/apk/*
 
 COPY php/phpunit.xml.dist /var/www/phpunit.xml.dist
 COPY php/tests /var/www/tests
