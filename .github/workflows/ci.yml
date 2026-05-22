@@ -73,7 +73,7 @@ jobs:
           done
 
       - name: Run Unit tests
-        run: docker compose run --rm php phpunit --testsuite=Unit
+        run: docker compose run --rm php phpunit --configuration /var/www/phpunit.xml.dist --testsuite=Unit
         env:
           POSTGRES_HOST: 127.0.0.1
           POSTGRES_PORT: 5432
@@ -82,7 +82,7 @@ jobs:
           POSTGRES_PASSWORD: docker
 
       - name: Run Integration tests
-        run: docker compose run --rm php phpunit --testsuite=Integration
+        run: docker compose run --rm php phpunit --configuration /var/www/phpunit.xml.dist --testsuite=Integration
         env:
           POSTGRES_HOST: 127.0.0.1
           POSTGRES_PORT: 5432
