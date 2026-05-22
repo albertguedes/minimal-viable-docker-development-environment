@@ -103,7 +103,8 @@ jobs:
 
       - name: Install Hadolint
         run: |
-          curl -sL https://raw.githubusercontent.com/hadolint/hadolint/master/install.sh | sudo sh -s -- -v 2.12.0
+          curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-linux-x86_64 -o /usr/local/bin/hadolint
+          chmod +x /usr/local/bin/hadolint
 
       - name: Lint Dockerfiles
         run: |
