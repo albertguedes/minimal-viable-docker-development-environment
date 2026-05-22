@@ -97,6 +97,17 @@ jobs:
             sleep 2
           done
 
+      - name: Debug PostgreSQL connectivity from PHP
+        run: |
+          echo "=== Debug: PostgreSQL connection test ==="
+          docker compose exec -T php php -r "
+          echo 'POSTGRES_HOST=' . getenv('POSTGRES_HOST') . PHP_EOL;
+          \$conn = pg_connect('host=db port=5432 dbname=dockerdb user=docker password=docker');
+          if (\$conn) { echo 'pg_connect: SUCCESS' . PHP_EOL; pg_close(\$conn); }
+          else { echo 'pg_connect: FAILED - ' . pg_last_error() . PHP_EOL; }
+          "
+          echo "=== End debug ==="
+
       - name: Run Unit tests
         run: composer test:unit
 
