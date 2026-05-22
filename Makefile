@@ -62,7 +62,7 @@ test:
 	@curl -sf http://localhost:8080/database.php > /dev/null && echo "OK: /database.php"
 	@curl -sf http://localhost:8080/health > /dev/null && echo "OK: /health"
 	@curl -sf http://localhost:8080/metrics.php > /dev/null && echo "OK: /metrics.php"
-	@$(DOCKER) exec postgresql-container pg_isready -U docker -d dockerdb && echo "OK: db"
+	@$(DOCKER) exec mv-postgresql-container pg_isready -U docker -d dockerdb && echo "OK: db"
 	@echo "All tests passed"
 
 test-backup:
