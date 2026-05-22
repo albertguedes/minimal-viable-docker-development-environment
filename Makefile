@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell clean test backup restore crontab
+.PHONY: help build up down logs shell clean test test-backup backup restore crontab
 
 DOCKER := docker
 COMPOSE := $(DOCKER) compose
@@ -9,16 +9,17 @@ help:
 	@echo "3 containers: nginx + php-fpm + postgresql"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make build    Build Docker images"
-	@echo "  make up       Start all containers"
-	@echo "  make down     Stop all containers"
-	@echo "  make logs     View logs"
-	@echo "  make shell    Shell into container (service=php|db|webserver)"
-	@echo "  make clean    Remove containers and volumes"
-	@echo "  make test     Run tests"
-	@echo "  make backup   Backup database"
-	@echo "  make restore  Restore database (file=<backup>)"
-	@echo "  make crontab  Install crontab jobs"
+	@echo "  make build          Build Docker images"
+	@echo "  make up             Start all containers"
+	@echo "  make down           Stop all containers"
+	@echo "  make logs           View logs"
+	@echo "  make shell          Shell into container (service=php|db|webserver)"
+	@echo "  make clean          Remove containers and volumes"
+	@echo "  make test           Run HTTP and DB tests"
+	@echo "  make test-backup    Run backup script tests"
+	@echo "  make backup         Backup database"
+	@echo "  make restore        Restore database (file=<backup>)"
+	@echo "  make crontab        Install crontab jobs"
 
 build:
 	$(COMPOSE) build
@@ -61,8 +62,11 @@ test:
 	@curl -sf http://localhost:8080/database.php > /dev/null && echo "OK: /database.php"
 	@curl -sf http://localhost:8080/health > /dev/null && echo "OK: /health"
 	@curl -sf http://localhost:8080/metrics.php > /dev/null && echo "OK: /metrics.php"
-	@$(DOCKER) exec postgresql-container pg_isready -U $${POSTGRES_USER:-docker} -d $${POSTGRES_DB:-dockerdb} && echo "OK: db"
+	@$(DOCKER) exec postgresql-container pg_isready -U docker -d dockerdb && echo "OK: db"
 	@echo "All tests passed"
+
+test-backup:
+	@bash backup/test_backup.sh
 
 backup:
 	@bash backup/backup.sh
