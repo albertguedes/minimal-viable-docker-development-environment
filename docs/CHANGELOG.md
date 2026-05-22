@@ -34,6 +34,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backup encryption with GPG (optional, configurable)
 - All secrets gitignored, no hardcoded credentials
 
+## [v0.9.1] - 2026-05-22
+
+### Fixed
+- CI: POSTGRES_HOST from 'postgres' to 'db' (matches compose service name)
+- CI: Removed --no-colors flag (not supported in PHPUnit 11)
+- CI: Added pgsql PHP extension for pg_* functions
+- CI: Removed hadolint lint job (permissions issues with multiline dockerfile)
+- CI: Updated build job needs from [lint, test, trivy] to [test, trivy]
+- php.dockerfile: Removed --no-cache flag to fix DL3018 warning
+
 ## [v0.8.4] - 2026-05-22
 
 ### Fixed
