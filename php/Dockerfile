@@ -6,7 +6,8 @@
 #
 # Supports: 8.2, 8.3, 8.4
 #
-FROM php:${PHP_VERSION:-8.4}-fpm-alpine
+ARG PHP_VERSION=8.4
+FROM php:${PHP_VERSION}-fpm-alpine
 
 RUN apk add --no-cache \
     libpq-dev \
