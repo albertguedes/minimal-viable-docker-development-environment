@@ -6,17 +6,20 @@
 
 A production-ready, lightweight Docker development environment for teams requiring a consistent PHP + PostgreSQL stack. Built on Alpine Linux images for minimal footprint and fast deployments.
 
+**Key feature: Host-independent** - Only Docker is required on the host machine. All PHP dependencies (Composer, PHPUnit) are installed inside the containers.
+
 ---
 
 ## Why This Project?
 
 | Feature | Benefit |
 |---------|---------|
+| **Host-Independent** | Only Docker needed on host; no PHP/Composer required |
 | **Minimal Footprint** | Alpine-based images (~5MB base) for faster builds and lower resource usage |
 | **Production-Ready** | Health checks, restart policies, and persistent storage out of the box |
 | **Environment Isolation** | All credentials managed via environment variables, never in code |
 | **Self-Documenting** | Clear service boundaries, dependency management, and architecture docs |
-| **Enterprise Secure** | Ports bound to localhost, custom networks, no hardcoded secrets |
+| **Enterprise Secure** | Ports bound to localhost, host networking, no hardcoded secrets |
 | **CI/CD Ready** | GitHub Actions workflows for testing, scanning, and release |
 
 ---
@@ -33,31 +36,32 @@ A production-ready, lightweight Docker development environment for teams requiri
          │                                 │
          ▼                                 ▼
 ┌─────────────────────┐         ┌─────────────────────┐
-│  nginx-container     │         │   php-fpm-container │
-│  (nginx:1.27-alpine) │────────▶│  (php:8.4-fpm)     │
-│                      │         │                    │
-│  Port: 80           │         │  Port: 9000        │
-│  /usr/share/nginx/   │         │  /var/www/html     │
+│  nginx-container   │         │   php-fpm-container │
+│  (nginx:1.27-alpine)│         │  (php:8.4-fpm)      │
+│                     │────────▶│                     │
+│  Port: 8080        │         │  Port: 9000         │
+│  /usr/share/nginx/  │         │  /var/www/html      │
 └─────────────────────┘         └─────────┬───────────┘
                                           │
                                           ▼
                               ┌─────────────────────┐
                               │ postgresql-container │
                               │  (postgres:17)      │
-                              │                    │
+                              │                     │
                               │  Port: 5432        │
-                              │  Volume: postgres-  │
-                              │    data             │
+                              │  Volume: ./data     │
                               └─────────────────────┘
 ```
+
+All services use **host networking** for direct communication via `127.0.0.1`.
 
 ## Services
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
 | **webserver** | nginx:1.27-alpine | 8080 | HTTP server, PHP proxy |
-| **php** | php:8.4-fpm-alpine | 9090 | PHP-FPM FastCGI processor |
-| **db** | postgres:17-alpine | 2345 | PostgreSQL database |
+| **php** | php:8.4-fpm-alpine | 9000 | PHP-FPM FastCGI processor |
+| **db** | postgres:17-alpine | 5432 | PostgreSQL database |
 
 ---
 
@@ -68,7 +72,6 @@ A production-ready, lightweight Docker development environment for teams requiri
 - Docker Engine 20.10+
 - Docker Compose 2.0+
 - GNU Make 3.81+
-- Composer 2.0+ (for running tests)
 
 ### Installation
 
@@ -81,13 +84,10 @@ cd minimal-viable-docker-development-environment
 cp .env.example .env
 # Edit .env with your preferred credentials
 
-# 3. Install PHP dependencies
-composer install
-
-# 4. Build and start services
+# 3. Build and start services
 make build && make up
 
-# 5. Verify services
+# 4. Verify services
 make test
 ```
 
@@ -103,10 +103,13 @@ curl http://localhost:8080/index.php
 # Test database connection
 curl http://localhost:8080/database.php
 
-# Run unit tests
+# Run all tests (curl + PHPUnit)
+make test
+
+# Run unit tests only
 make test:unit
 
-# Run integration tests
+# Run integration tests only
 make test:integration
 
 # View running containers
@@ -124,7 +127,8 @@ make shell service=php
 |---------|-------------|
 | `make up` | Start all containers in detached mode |
 | `make down` | Stop all containers |
-| `make build` | Rebuild Docker images |
+| `make build` | Rebuild Docker images (PHP 8.4 by default) |
+| `make build PHP_VERSION=8.2` | Build with specific PHP version |
 | `make logs [service=<name>]` | View logs (all or specific service) |
 | `make shell service=<db\|php\|webserver>` | Exec into container shell |
 | `make clean` | Remove containers, volumes, and images |
@@ -139,28 +143,25 @@ make shell service=php
 
 ## Testing
 
-### PHPUnit Tests
+Tests run inside the PHP container - no PHP/Composer needed on host.
 
 ```bash
-# Install dependencies
-composer install
-
 # Run all tests
-composer test
+make test
 
 # Run unit tests only
-composer test:unit
+make test:unit
 
 # Run integration tests only
-composer test:integration
+make test:integration
 ```
 
 ### Test Suites
 
 | Suite | Purpose | Location |
 |------|---------|----------|
-| **Unit** | PHP logic tests | `tests/Unit/` |
-| **Integration** | HTTP endpoints + DB tests | `tests/Integration/` |
+| **Unit** | PHP logic tests | `php/tests/Unit/` |
+| **Integration** | HTTP endpoints + DB tests | `php/tests/Integration/` |
 
 ---
 
@@ -187,20 +188,21 @@ POSTGRES_PASSWORD=your_secure_password
 
 ```
 .
-├── src/                    # Application source code
+├── src/                    # Application source code (volume-mounted)
 │   ├── index.html         # Static HTML page
 │   ├── index.php          # PHP info page
 │   ├── database.php       # Database connection test
 │   ├── health.php         # Health check endpoint
 │   └── metrics.php        # JSON metrics endpoint
-├── tests/                  # PHPUnit test suite
-│   ├── bootstrap.php
-│   ├── Unit/
-│   └── Integration/
+├── php/                    # PHP service
+│   ├── php.dockerfile     # Multi-version PHP (8.2/8.3/8.4)
+│   ├── phpunit.xml.dist   # PHPUnit configuration
+│   └── tests/             # Test suite (volume-mounted)
+│       ├── bootstrap.php
+│       ├── Unit/
+│       └── Integration/
 ├── database/               # Database service
 │   └── postgresql.dockerfile
-├── php/                    # PHP service
-│   └── php.dockerfile
 ├── webserver/              # Web server service
 │   ├── nginx.dockerfile
 │   └── nginx/
@@ -213,12 +215,10 @@ POSTGRES_PASSWORD=your_secure_password
 │   └── config.sh          # Backup configuration
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml         # CI pipeline (lint, test, scan, build)
+│       ├── ci.yml         # CI pipeline (test, Trivy scan, build)
 │       └── cd.yml         # CD pipeline (tagged releases)
 ├── compose.yaml           # Service definitions
 ├── Makefile               # Developer commands
-├── phpunit.xml.dist       # PHPUnit configuration
-├── composer.json          # PHP dependencies
 └── docs/                  # Documentation
     ├── ARCHITECTURE.md
     ├── CHANGELOG.md
@@ -234,26 +234,19 @@ POSTGRES_PASSWORD=your_secure_password
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| **CI** | push to master, PR | Lint → Test (PHP 8.2/8.3/8.4) → Trivy scan → Build |
-| **CD** | annotated tag `v*` | Build + push tagged images to registry |
+| **CI** | push to master, PR | Test (PHP 8.2/8.3/8.4) → Trivy scan → Build images |
+| **CD** | annotated tag `v*` | Build + push tagged images to GitHub Container Registry |
 
-### Secrets Required
+### Docker Images
 
-Configure in GitHub repository settings:
+Images are published to **GitHub Container Registry (GHCR)**:
 
-| Secret | Description |
-|--------|-------------|
-| `DOCKER_REGISTRY_USERNAME` | Docker Hub username |
-| `DOCKER_REGISTRY_TOKEN` | Docker Hub access token |
-
-### Registry Configuration
-
-Set in repository variables:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DOCKER_REGISTRY` | docker.io | Docker registry URL |
-| `DOCKER_IMAGE_NAME` | github.repository | Full image path |
+```bash
+# Example: Pull tagged release
+docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/php:v0.10.0
+docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/webserver:v0.10.0
+docker pull ghcr.io/albertguedes/minimal-viable-docker-development-environment/db:v0.10.0
+```
 
 ---
 
@@ -275,12 +268,11 @@ cat .env
 ### Database connection fails
 
 ```bash
-# Wait for DB healthcheck to pass
-make logs service=db
+# Wait for DB to be ready
+pg_isready -h 127.0.0.1 -p 5432 -U docker
 
 # Manually test connection inside PHP container
 make shell service=php
-pg_isready -h db -U docker
 ```
 
 ### Port already in use
@@ -289,7 +281,7 @@ pg_isready -h db -U docker
 # Find what's using port 8080
 lsof -i :8080
 # or
-netstat -tulpn | grep 8080
+netstat -tulpn | 8080
 ```
 
 ---
@@ -337,8 +329,7 @@ make restore file=backup/postgresql_20260522_120000.sql.gz
 - Ports are bound to `127.0.0.1` (localhost only) by default
 - All credentials managed via environment variables
 - No secrets committed to version control
-- Custom Docker network for service isolation
-- Named volumes for persistent data encryption at rest
+- Host networking mode for inter-container communication
 - CI/CD includes Trivy vulnerability scanning
 - Backups can be encrypted with GPG
 

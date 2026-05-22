@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.10.0] - 2026-05-22
+
+### Changed
+- **Host-Independent Docker Environment**: Application now runs entirely in Docker containers
+  - PHP image includes: composer, PHPUnit 11, PDO pgsql, pgsql extensions
+  - Removed: `composer.json`, `composer.lock`, `vendor/` (no longer needed on host)
+  - Tests moved to `php/tests/` (volume-mounted into container at runtime)
+  - `phpunit.xml.dist` moved to `php/` (volume-mounted)
+  - Multi-version PHP support (8.2, 8.3, 8.4) via `--build-arg PHP_VERSION=x.x`
+- **CI Pipeline Refactored**: Tests now run inside PHP container via `docker compose run`
+- **Makefile**: Updated to use `docker compose run --rm php phpunit` for testing
+- **compose.yaml**: PHP service uses build args for version, volumes for tests
+
+### Removed
+- Host machine requirement for PHP/Composer (now only Docker required)
+- Network mode bridge (all services now use `host` mode)
+
 ## [v0.9.0] - 2026-05-22
 
 ### Added
