@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.8.4] - 2026-05-22
+
+### Fixed
+- nginx default.conf: fastcgi_pass now uses `php:9000` (service name) instead of container name
+- php.dockerfile: removed redundant chown (base image already has www-data)
+- backup/backup.sh: mkdir reordered before path validation (race condition fix)
+- src/index.html: fixed unclosed h1 tag
+- crontab.txt: made portable with dynamic path detection
+
+### Added
+- src/health.php: new dedicated health check endpoint
+- VERSION: synced to v0.8.3
+
+### Updated
+- AGENT.md: container naming standardized to `mv-*` prefix, network name to `mv-network`
+- docs/ARCHITECTURE.md: container and network naming updated throughout
+
 ## [v0.8.3] - 2026-05-21
 
 ### Fixed

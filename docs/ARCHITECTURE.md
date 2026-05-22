@@ -22,10 +22,11 @@ This project provides a containerized development environment consisting of thre
 │   127.0.0.1:2345 ─────── postgresql (direct access)             │
 │                                                                 │
 │   ┌──────────────────────────────────────────────────────────┐  │
-│   │              Docker Network (app-network)                │  │
+│   │              Docker Network (mv-network)                 │  │
 │   │                                                          │  │
 │   │   ┌──────────────┐     ┌──────────────┐    ┌───────────┐ │  │
 │   │   │    nginx     │───▶│  php-fpm     │──▶ │postgres   │ │  │
+│   │   │  mv-nginx    │     │ mv-php-fpm  │    │ mv-pg     │ │  │
 │   │   │  container   │     │  container   │    │ container │ │  │
 │   │   └──────────────┘     └──────────────┘    └───────────┘ │  │
 │   │                                                          │  │
@@ -45,7 +46,7 @@ This project provides a containerized development environment consisting of thre
 | Property | Value |
 |----------|-------|
 | Image | nginx:1.27-alpine |
-| Container | nginx-container |
+| Container | mv-nginx-container |
 | Host Port | 8080 |
 | Container Port | 80 |
 | Configuration | webserver/nginx/default.conf |
@@ -69,7 +70,7 @@ Client → nginx:80 → location ~ \.php$ → fastcgi_pass php-fpm:9000
 | Property | Value |
 |----------|-------|
 | Image | php:8.4-fpm-alpine |
-| Container | php-fpm-container |
+| Container | mv-php-fpm-container |
 | Host Port | 9090 |
 | Container Port | 9000 |
 | Volume Mount | ./src → /var/www/html |
@@ -95,7 +96,7 @@ Client → nginx:80 → location ~ \.php$ → fastcgi_pass php-fpm:9000
 | Property | Value |
 |----------|-------|
 | Image | postgres:17-alpine |
-| Container | postgresql-container |
+| Container | mv-postgresql-container |
 | Host Port | 2345 |
 | Container Port | 5432 |
 | Volume Mount | `./database/data` → `/var/lib/postgresql/data` |
@@ -120,14 +121,14 @@ Client → nginx:80 → location ~ \.php$ → fastcgi_pass php-fpm:9000
 
 ```yaml
 networks:
-  app-network:
+  mv-network:
     driver: bridge
 ```
 
 Services communicate via DNS names matching container names:
-- `postgresql-container` (db service)
-- `php-fpm-container` (php service)
-- `nginx-container` (webserver service)
+- `mv-postgresql-container` (db service)
+- `mv-php-fpm-container` (php service)
+- `mv-nginx-container` (webserver service)
 
 ### Port Bindings
 
@@ -160,7 +161,7 @@ Browser → http://localhost:8080/index.php
         ↓
 nginx container (port 80)
         ↓ (location ~ \.php$)
-fastcgi_pass php-fpm-container:9000
+fastcgi_pass php:9000
         ↓
 fastcgi_param SCRIPT_FILENAME /var/www/html/index.php
         ↓
@@ -180,7 +181,7 @@ Browser → http://localhost:8080/database.php
         ↓ (via php-fpm)
 PHP executes pg_connect()
         ↓
-host=postgresql-container port=5432
+host=mv-postgresql-container port=5432
         ↓
 PostgreSQL processes query
         ↓

@@ -9,7 +9,9 @@
 #   /var/log/uptime.log - Uptime check failures
 
 # Backup database daily at 2 AM
-0 2 * * * /home/albert/Development/DOCKER/minimal_viable/backup/backup.sh >> /var/log/backup.log 2>&1
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+0 2 * * * $SCRIPT_DIR/backup/backup.sh >> /var/log/backup.log 2>&1
 
 # Check uptime every 5 minutes
 */5 * * * * curl -sf http://localhost:8080/health > /dev/null || echo "DOWN: $(date)" >> /var/log/uptime.log
