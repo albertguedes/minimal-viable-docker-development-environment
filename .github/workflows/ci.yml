@@ -101,15 +101,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Run Hadolint
-        uses: hadolint/hadolint-action@v2
+      - name: Lint Dockerfile
+        uses: docker://hadolint/hadolint:v2.12.0-alpine
         with:
-          dockerfile: |
-            database/Dockerfile
-            php/Dockerfile
-            webserver/Dockerfile
-          indent: 2
-          verbose: true
+          args: database/Dockerfile php/Dockerfile webserver/Dockerfile
 
   trivy:
     name: Vulnerability Scan
