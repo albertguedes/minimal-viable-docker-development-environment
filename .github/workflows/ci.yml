@@ -164,6 +164,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./database
+          dockerfile: postgresql.dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ghcr.io/${{ github.repository }}/db:${{ github.sha }}
           cache-from: type=gha
@@ -173,6 +174,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./php
+          dockerfile: php.dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           build-args: PHP_VERSION=${{ matrix.php }}
           tags: ghcr.io/${{ github.repository }}/php:${{ github.sha }}
@@ -183,6 +185,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./webserver
+          dockerfile: nginx.dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ghcr.io/${{ github.repository }}/webserver:${{ github.sha }}
           cache-from: type=gha
