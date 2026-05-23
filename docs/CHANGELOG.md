@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- CD workflow: `softprops/action-gh-release` requires `tag_name` instead of `tag` parameter
+- CD workflow: generate changelog from git commits since last tag
+
+### Changed
+- CD workflow: disable `generate_release_notes` (manual body with changelog)
+
 ## [v0.10.1] - 2026-05-22
 
 ### Fixed
